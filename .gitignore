@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files (user-specific)
+*.json
+!package.json
+!package-lock.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+

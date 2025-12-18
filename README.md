@@ -2,7 +2,27 @@
 
 A modern, dark-themed web application for calculating accurate 3D printing job quotes. This tool helps 3D printing businesses and hobbyists calculate the true cost of their prints, including materials, electricity, machine depreciation, maintenance, and more.
 
-![Quote Calculator](https://img.shields.io/badge/version-2.0-00d4aa)
+![Version](https://img.shields.io/badge/version-2.0-00d4aa)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Platform](https://img.shields.io/badge/platform-Web-lightgrey)
+
+## Screenshots
+
+### Quote Calculator
+![Quote Calculator](screenshots/quote-calculator.png)
+*Real-time quote calculation with expandable cost breakdown*
+
+### Printer Management
+![Printers](screenshots/printers.png)
+*Configure electricity, depreciation, and maintenance costs per printer*
+
+### Material Management
+![Materials](screenshots/materials.png)
+*Manage your filament inventory with pricing*
+
+### Database Connection
+![Database](screenshots/database-modal.png)
+*Connect to a JSON file for persistent storage*
 
 ## Features
 
@@ -151,6 +171,7 @@ Depending on pricing mode:
 ├── app.js          # Application logic
 ├── start.sh        # Start script for macOS/Linux
 ├── start.bat       # Start script for Windows
+├── screenshots/    # App screenshots
 └── README.md       # This file
 ```
 
