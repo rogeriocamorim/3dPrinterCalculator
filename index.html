@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Quote Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Database Connection Status -->
+    <div id="db-status" class="db-status disconnected">
+        <div class="db-status-indicator"></div>
+        <span class="db-status-text">No database connected</span>
+        <button class="db-status-btn" id="connect-db-btn">Connect</button>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">3D</div>
+                <span>PrintQuote</span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-page="quote">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 7h6m-6 4h6m-6 4h4M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+                    </svg>
+                    Quote Calculator
+                </button>
+                <button class="nav-item" data-page="printers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Printers
+                </button>
+                <button class="nav-item" data-page="materials">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Materials
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="version">v2.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Quote Page -->
+            <div id="quote-page" class="page active">
+                <div class="page-header">
+                    <h1>Quote Calculator</h1>
+                    <p class="page-subtitle">Calculate printing costs in real-time</p>
+                </div>
+
+                <div class="quote-layout">
+                    <div class="quote-inputs">
+                        <!-- Printer Selection -->
+                        <section class="card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                                    <rect x="6" y="14" width="12" height="8"/>
+                                </svg>
+                                Printer
+                            </h2>
+                            <div class="form-group">
+                                <select id="printer-select">
+                                    <option value="">Select a printer...</option>
+                                </select>
+                            </div>
+                        </section>
+
+                        <!-- Print Time -->
+                        <section class="card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                Print Time
+                            </h2>
+                            <div class="time-grid">
+                                <div class="time-field">
+                                    <input type="number" id="print-time-days" min="0" value="0">
+                                    <label>Days</label>
+                                </div>
+                                <div class="time-field">
+                                    <input type="number" id="print-time-hours" min="0" max="23" value="0">
+                                    <label>Hours</label>
+                                </div>
+                                <div class="time-field">
+                                    <input type="number" id="print-time-minutes" min="0" max="59" value="0">
+                                    <label>Min</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Materials -->
+                        <section class="card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                Materials Used
+                            </h2>
+                            <div id="materials-list" class="crud-list"></div>
+                            <button class="btn-add" id="add-material-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Add Material
+                            </button>
+                        </section>
+
+                        <!-- Extra Costs -->
+                        <section class="card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                                </svg>
+                                Extra Costs
+                            </h2>
+                            <div id="extra-costs-list" class="crud-list"></div>
+                            <button class="btn-add" id="add-extra-cost-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Add Extra Cost
+                            </button>
+                        </section>
+
+                        <!-- Processing Time -->
+                        <section class="card collapsible">
+                            <h2 class="collapsible-header" data-target="processing-content">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                                </svg>
+                                Processing Time
+                                <span class="collapse-icon">▼</span>
+                            </h2>
+                            <div id="processing-content" class="collapsible-content">
+                                <div class="processing-section">
+                                    <label class="section-label">Pre-processing</label>
+                                    <div class="time-grid small">
+                                        <div class="time-field">
+                                            <input type="number" id="pre-process-hours" min="0" value="0">
+                                            <label>Hours</label>
+                                        </div>
+                                        <div class="time-field">
+                                            <input type="number" id="pre-process-minutes" min="0" max="59" value="0">
+                                            <label>Min</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="processing-section">
+                                    <label class="section-label">Post-processing</label>
+                                    <div class="time-grid small">
+                                        <div class="time-field">
+                                            <input type="number" id="post-process-hours" min="0" value="0">
+                                            <label>Hours</label>
+                                        </div>
+                                        <div class="time-field">
+                                            <input type="number" id="post-process-minutes" min="0" max="59" value="0">
+                                            <label>Min</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Pricing Mode -->
+                        <section class="card">
+                            <h2>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 14l6-6"/>
+                                    <circle cx="9.5" cy="9.5" r="1.5"/>
+                                    <circle cx="14.5" cy="14.5" r="1.5"/>
+                                    <rect x="2" y="2" width="20" height="20" rx="5"/>
+                                </svg>
+                                Pricing Mode
+                            </h2>
+                            <div class="pricing-modes">
+                                <label class="pricing-mode-option active">
+                                    <input type="radio" name="pricing-mode" value="profit-percent" checked>
+                                    <span class="option-content">
+                                        <strong>Profit Margin</strong>
+                                        <small>Add percentage to cost</small>
+                                    </span>
+                                </label>
+                                <label class="pricing-mode-option">
+                                    <input type="radio" name="pricing-mode" value="price-per-hour">
+                                    <span class="option-content">
+                                        <strong>Hourly Rate</strong>
+                                        <small>Price per print hour</small>
+                                    </span>
+                                </label>
+                                <label class="pricing-mode-option">
+                                    <input type="radio" name="pricing-mode" value="fixed-price">
+                                    <span class="option-content">
+                                        <strong>Fixed Price</strong>
+                                        <small>Set final price</small>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="pricing-input" id="profit-percent-input">
+                                <label>Profit Margin</label>
+                                <div class="input-with-suffix">
+                                    <input type="number" id="profit-percent" value="30" min="0" step="1">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+                            <div class="pricing-input hidden" id="price-per-hour-input">
+                                <label>Price per Hour</label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="price-per-hour" value="0" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="pricing-input hidden" id="fixed-price-input">
+                                <label>Final Price</label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="fixed-price" value="0" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Quote Results (Always Visible) -->
+                    <div class="quote-results">
+                        <div class="results-card">
+                            <h2>Quote Summary</h2>
+                            
+                            <!-- Final Price (Always Visible) -->
+                            <div class="final-price-section">
+                                <div class="final-price">
+                                    <span class="final-price-label">Final Price</span>
+                                    <span class="final-price-value" id="final-price">$0.00</span>
+                                </div>
+                                <div class="price-metrics">
+                                    <div class="metric">
+                                        <span class="metric-value" id="profit-margin-result">0%</span>
+                                        <span class="metric-label">Profit</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="metric-value" id="price-per-hour-result">$0.00</span>
+                                        <span class="metric-label">Per Hour</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Expandable Cost Breakdown -->
+                            <div class="cost-breakdown-toggle" id="cost-breakdown-toggle">
+                                <span class="toggle-label">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                    Cost Breakdown
+                                </span>
+                                <span class="toggle-total" id="total-cost-mini">$0.00</span>
+                            </div>
+                            
+                            <div class="results-breakdown" id="results-breakdown">
+                                <!-- Material Cost -->
+                                <div class="result-row has-detail">
+                                    <span class="result-label">
+                                        <span class="expand-arrow">›</span>
+                                        Material Cost
+                                    </span>
+                                    <span class="result-value" id="material-cost">$0.00</span>
+                                </div>
+                                <div class="result-math" id="material-math"></div>
+                                
+                                <!-- Extra Costs -->
+                                <div class="result-row">
+                                    <span class="result-label">Extra Costs</span>
+                                    <span class="result-value" id="extra-cost">$0.00</span>
+                                </div>
+                                
+                                <!-- Electricity -->
+                                <div class="result-row has-detail">
+                                    <span class="result-label">
+                                        <span class="expand-arrow">›</span>
+                                        Electricity
+                                    </span>
+                                    <span class="result-value" id="electricity-cost">$0.00</span>
+                                </div>
+                                <div class="result-math" id="electricity-math"></div>
+                                
+                                <!-- Depreciation / Machine Cost -->
+                                <div class="result-row has-detail">
+                                    <span class="result-label">
+                                        <span class="expand-arrow">›</span>
+                                        Machine Cost
+                                    </span>
+                                    <span class="result-value" id="depreciation-cost">$0.00</span>
+                                </div>
+                                <div class="result-math" id="depreciation-math"></div>
+                                
+                                <!-- Total -->
+                                <div class="result-row total-row">
+                                    <span class="result-label">Total Cost</span>
+                                    <span class="result-value" id="total-cost">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div class="print-info">
+                                <div class="info-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <span id="total-time-display">0h 0m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Printers Page -->
+            <div id="printers-page" class="page">
+                <div class="page-header">
+                    <h1>Printers</h1>
+                    <p class="page-subtitle">Manage your 3D printers</p>
+                    <button class="btn-primary" id="add-printer-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add Printer
+                    </button>
+                </div>
+                <div id="printers-list" class="items-grid"></div>
+            </div>
+
+            <!-- Materials Page -->
+            <div id="materials-page" class="page">
+                <div class="page-header">
+                    <h1>Materials</h1>
+                    <p class="page-subtitle">Manage your filaments and materials</p>
+                    <button class="btn-primary" id="add-filament-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add Material
+                    </button>
+                </div>
+                <div id="filaments-list" class="items-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden file input for fallback -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <script src="app.js"></script>
+</body>
+</html>
