@@ -49,19 +49,34 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 
 ### Running the App
 
-#### Option 1: Using Python (Recommended)
+#### Quick Start (Recommended)
+
+**On macOS/Linux:**
 ```bash
-cd 3d-print-quote-app
+./start.sh
+```
+
+**On Windows:**
+```batch
+start.bat
+```
+
+These scripts automatically detect and use whatever server is available on your system (Python, Node.js, PHP, or Ruby). If no server is found, they'll open the app directly in your browser.
+
+#### Manual Options
+
+**Using Python:**
+```bash
 python3 -m http.server 8000
 ```
 Then open http://localhost:8000 in your browser.
 
-#### Option 2: Using Node.js
+**Using Node.js:**
 ```bash
 npx http-server -p 8000
 ```
 
-#### Option 3: Direct File Open
+**Direct File Open:**
 Simply open `index.html` in your browser. Note: The File System Access API (for database file saving) requires a web server.
 
 ### First-Time Setup
@@ -134,6 +149,8 @@ Depending on pricing mode:
 ├── index.html      # Main HTML structure
 ├── styles.css      # All styling (dark theme)
 ├── app.js          # Application logic
+├── start.sh        # Start script for macOS/Linux
+├── start.bat       # Start script for Windows
 └── README.md       # This file
 ```
 
