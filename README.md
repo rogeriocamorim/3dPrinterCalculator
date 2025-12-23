@@ -112,11 +112,8 @@ Simply open `index.html` in your browser. Note: The File System Access API (for 
    - Click "Add Printer"
    - Fill in your printer's details:
      - Name
-     - Power consumption (kW)
-     - Electricity rate ($/kWh)
-     - Purchase price and expected lifetime hours (for depreciation)
-     - Repair cost per hour (optional)
-     - Maintenance cost and interval (optional)
+     - Power consumption (kW) and electricity rate ($/kWh)
+     - Purchase price and expected lifetime hours
 
 3. **Add Your Materials**
    - Navigate to the "Materials" page
@@ -143,24 +140,17 @@ Material Cost = (Quantity in grams / 1000) × Price per kg
 Electricity Cost = Print Time (hours) × Power (kW) × Rate ($/kWh)
 ```
 
-### Machine Cost (Depreciation + Repair + Maintenance)
+### Machine Cost (Depreciation)
 ```
-Depreciation per Hour = Purchase Price / Expected Lifetime Hours
-Depreciation = Depreciation per Hour × Print Time
-
-Repair Cost = Repair Rate ($/hour) × Print Time
-
-Maintenance per Hour = Maintenance Cost / Maintenance Interval (hours)
-Maintenance = Maintenance per Hour × Print Time
-
-Total Machine Cost = Depreciation + Repair Cost + Maintenance
+Cost per Hour = Purchase Price / Expected Lifetime Hours
+Machine Cost = Cost per Hour × Print Time
 ```
 
 **Example:**
 - Printer Cost: $3,700
 - Expected Lifetime: 5,000 hours
-- Depreciation/Hour: $3,700 ÷ 5,000 = $0.74/hour
-- 9-hour print: $0.74 × 9 = $6.66 depreciation
+- Cost/Hour: $3,700 ÷ 5,000 = **$0.74/hour**
+- 9-hour print: $0.74 × 9 = **$6.66**
 
 ### Final Price
 Depending on pricing mode:
@@ -195,10 +185,7 @@ The app stores data in a JSON file with this structure:
       "costPerKwh": 0.12,
       "cost": 200,
       "expectedLifetimeHours": 5000,
-      "includeDepreciation": true,
-      "repairCostPerHour": 0,
-      "maintenanceCost": 10,
-      "maintenanceInterval": 100
+      "includeDepreciation": true
     }
   ],
   "filaments": [

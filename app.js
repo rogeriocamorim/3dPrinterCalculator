@@ -581,25 +581,13 @@ function calculateQuote() {
         electricityCost = printTime * (printer.kwPerHour || 0) * (printer.costPerKwh || 0);
     }
     
-    // Calculate machine cost (depreciation + repair + maintenance)
+    // Calculate machine cost (depreciation)
     let depreciationCost = 0;
-    let maintenanceCostPerHour = 0;
     if (printer && printTime > 0) {
-        const repairCost = (printer.repairCostPerHour || 0) * printTime;
-        
-        // Maintenance cost per hour = Maintenance Cost / Maintenance Interval
-        if (printer.maintenanceCost && printer.maintenanceInterval) {
-            maintenanceCostPerHour = printer.maintenanceCost / printer.maintenanceInterval;
-        }
-        const maintenanceCost = maintenanceCostPerHour * printTime;
-        
         if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
             // Depreciation: Printer Cost / Expected Lifetime Hours * Print Time
             const depreciationPerHour = printer.cost / printer.expectedLifetimeHours;
-            depreciationCost = (depreciationPerHour * printTime) + repairCost + maintenanceCost;
-        } else {
-            // Only repair + maintenance cost
-            depreciationCost = repairCost + maintenanceCost;
+            depreciationCost = depreciationPerHour * printTime;
         }
     }
 
@@ -704,16 +692,9 @@ function updateMathBreakdowns(printer, printTime, materialCost, electricityCost,
     // Depreciation/Machine Math
     let depreciationMath = '';
     if (printer && printTime > 0) {
-        const repairCost = (printer.repairCostPerHour || 0) * printTime;
-        const maintenancePerHour = (printer.maintenanceCost && printer.maintenanceInterval) 
-            ? printer.maintenanceCost / printer.maintenanceInterval 
-            : 0;
-        const maintenanceCost = maintenancePerHour * printTime;
-        
         if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
             const lifetimeHours = printer.expectedLifetimeHours;
             const depPerHour = printer.cost / lifetimeHours;
-            const depCost = depPerHour * printTime;
             
             depreciationMath = `
                 <div class="math-line">
@@ -721,80 +702,20 @@ function updateMathBreakdowns(printer, printTime, materialCost, electricityCost,
                     <span class="math-value">${formatCurrency(printer.cost)}</span>
                 </div>
                 <div class="math-line">
-                    <span class="math-label">Expected Lifetime</span>
+                    <span class="math-label">Lifetime</span>
                     <span class="math-value">${lifetimeHours.toLocaleString()} hours</span>
                 </div>
                 <div class="math-line">
-                    <span class="math-label">Depreciation/Hour</span>
+                    <span class="math-label">Cost/Hour</span>
                     <span class="math-value">${formatCurrency(printer.cost)} ÷ ${lifetimeHours.toLocaleString()}h = ${formatCurrency(depPerHour)}</span>
                 </div>
-                <div class="math-line">
-                    <span class="math-label">Depreciation</span>
-                    <span class="math-value">${formatCurrency(depPerHour)} × ${printTime.toFixed(2)}h = ${formatCurrency(depCost)}</span>
+                <div class="math-line formula">
+                    <span class="math-label">= ${formatCurrency(depPerHour)} × ${printTime.toFixed(2)}h</span>
+                    <span class="math-value">${formatCurrency(depreciationCost)}</span>
                 </div>
             `;
-            
-            if (printer.repairCostPerHour > 0) {
-                depreciationMath += `
-                    <div class="math-line">
-                        <span class="math-label">Repair Cost</span>
-                        <span class="math-value">$${printer.repairCostPerHour}/h × ${printTime.toFixed(2)}h = ${formatCurrency(repairCost)}</span>
-                    </div>
-                `;
-            }
-            
-            if (maintenancePerHour > 0) {
-                depreciationMath += `
-                    <div class="math-line">
-                        <span class="math-label">Maintenance</span>
-                        <span class="math-value">$${printer.maintenanceCost} ÷ ${printer.maintenanceInterval}h = ${formatCurrency(maintenancePerHour)}/h</span>
-        </div>
-                    <div class="math-line">
-                        <span class="math-label">Maintenance Cost</span>
-                        <span class="math-value">${formatCurrency(maintenancePerHour)} × ${printTime.toFixed(2)}h = ${formatCurrency(maintenanceCost)}</span>
-        </div>
-                `;
-            }
-            
-            depreciationMath += `
-                <div class="math-line formula">
-                    <span class="math-label">Total Machine Cost</span>
-                    <span class="math-value">${formatCurrency(depreciationCost)}</span>
-        </div>
-            `;
         } else {
-            // No depreciation, but may have repair/maintenance
-            if (printer.repairCostPerHour > 0 || maintenancePerHour > 0) {
-                depreciationMath = '';
-                if (printer.repairCostPerHour > 0) {
-                    depreciationMath += `
-                        <div class="math-line">
-                            <span class="math-label">Repair Cost</span>
-                            <span class="math-value">$${printer.repairCostPerHour}/h × ${printTime.toFixed(2)}h = ${formatCurrency(repairCost)}</span>
-        </div>
-                    `;
-                }
-                if (maintenancePerHour > 0) {
-                    depreciationMath += `
-                        <div class="math-line">
-                            <span class="math-label">Maintenance</span>
-                            <span class="math-value">$${printer.maintenanceCost} ÷ ${printer.maintenanceInterval}h = ${formatCurrency(maintenancePerHour)}/h</span>
-        </div>
-                        <div class="math-line">
-                            <span class="math-label">Maintenance Cost</span>
-                            <span class="math-value">${formatCurrency(maintenancePerHour)} × ${printTime.toFixed(2)}h = ${formatCurrency(maintenanceCost)}</span>
-        </div>
-                    `;
-                }
-                depreciationMath += `
-                    <div class="math-line formula">
-                        <span class="math-label">Total</span>
-                        <span class="math-value">${formatCurrency(depreciationCost)}</span>
-        </div>
-                `;
-            } else {
-                depreciationMath = '<div class="math-line"><span class="math-label">Machine Pay Back disabled</span></div>';
-            }
+            depreciationMath = '<div class="math-line"><span class="math-label">Machine costs disabled</span></div>';
         }
     } else {
         depreciationMath = '<div class="math-line"><span class="math-label">Select a printer</span></div>';
@@ -829,12 +750,8 @@ function createPrinter() {
         kwPerHour: 0.2,
         costPerKwh: 0.12,
         cost: 0,
-        expectedLifetimeHours: 5000,  // Expected total hours before replacement
-        includeDepreciation: true,
-        repairCostPerHour: 0,
-        // Maintenance cost calculation
-        maintenanceCost: 0,        // Cost of maintenance (grease, oil, parts, etc.)
-        maintenanceInterval: 100   // Hours between maintenance
+        expectedLifetimeHours: 5000,
+        includeDepreciation: true
     };
     
     appData.printers.push(newPrinter);
@@ -936,48 +853,25 @@ function renderPrinters() {
             </div>
             <div class="item-card-section">
                 <div class="section-header">
-                    <label class="section-title">Machine Depreciation</label>
+                    <label class="section-title">Machine Costs</label>
                     <label class="toggle-switch">
                         <input type="checkbox" ${printer.includeDepreciation !== false ? 'checked' : ''}
                             onchange="updatePrinter('${printer.id}', 'includeDepreciation', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                <p class="section-description">Based on expected lifetime hours of the printer</p>
                 <div class="item-card-fields ${printer.includeDepreciation === false ? 'disabled' : ''}">
                     <div class="item-field">
-                        <label>Purchase Price ($)</label>
-                        <input type="number" value="${printer.cost || ''}" step="1" min="0" placeholder="0"
+                        <label>Cost ($)</label>
+                        <input type="number" value="${printer.cost || ''}" step="1" min="0" placeholder="3700"
                             onchange="updatePrinter('${printer.id}', 'cost', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
                     </div>
                     <div class="item-field">
-                        <label>Lifetime Hours</label>
+                        <label>Lifetime (hrs)</label>
                         <input type="number" value="${printer.expectedLifetimeHours || ''}" step="100" min="0" placeholder="5000"
                             onchange="updatePrinter('${printer.id}', 'expectedLifetimeHours', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
-                    </div>
-                    <div class="item-field full-width">
-                        <label>Repair Cost ($/Hour)</label>
-                        <input type="number" value="${printer.repairCostPerHour || ''}" step="0.01" min="0" placeholder="0"
-                            onchange="updatePrinter('${printer.id}', 'repairCostPerHour', this.value)"
-                            ${printer.includeDepreciation === false ? 'disabled' : ''}>
-                    </div>
-                </div>
-            </div>
-            <div class="item-card-section">
-                <label class="section-title">Maintenance</label>
-                <p class="section-description">Cost of periodic maintenance (grease, oil, parts replacement)</p>
-                <div class="item-card-fields">
-                    <div class="item-field">
-                        <label>Maintenance Cost ($)</label>
-                        <input type="number" value="${printer.maintenanceCost || ''}" step="0.01" min="0" placeholder="0"
-                            onchange="updatePrinter('${printer.id}', 'maintenanceCost', this.value)">
-                    </div>
-                    <div class="item-field">
-                        <label>Every X Hours</label>
-                        <input type="number" value="${printer.maintenanceInterval || ''}" step="1" min="1" placeholder="100"
-                            onchange="updatePrinter('${printer.id}', 'maintenanceInterval', this.value)">
                     </div>
                 </div>
             </div>
@@ -1161,16 +1055,13 @@ function loadDefaultData() {
         appData = {
             printers: [
                 {
-                id: 'printer-1',
-                name: 'Ender 3 Pro',
+                    id: 'printer-1',
+                    name: 'Ender 3 Pro',
                     kwPerHour: 0.22,
                     costPerKwh: 0.12,
                     cost: 200,
                     expectedLifetimeHours: 5000,
-                    includeDepreciation: true,
-                    repairCostPerHour: 0,
-                    maintenanceCost: 0,
-                    maintenanceInterval: 100
+                    includeDepreciation: true
                 }
             ],
             filaments: [
