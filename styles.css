@@ -506,7 +506,7 @@ select option {
 /* Items Grid (Printers/Materials Pages) */
 .items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
     gap: 20px;
 }
 
@@ -1369,4 +1369,75 @@ select option {
     color: var(--text-muted);
     font-style: italic;
     padding: 8px 0;
+}
+
+/* Labor Tasks */
+.labor-section {
+    margin-bottom: 20px;
+}
+
+.labor-section:last-child {
+    margin-bottom: 0;
+}
+
+.labor-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.labor-task-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.labor-task-item input[type="text"] {
+    flex: 1;
+    min-width: 80px;
+}
+
+.labor-task-item input[type="number"] {
+    width: 50px;
+    text-align: center;
+    padding: 6px 4px;
+}
+
+.labor-task-item .labor-rate-input {
+    width: 70px;
+}
+
+.labor-task-item .time-separator {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.labor-task-item .rate-prefix {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.btn-add-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-add-small:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }

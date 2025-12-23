@@ -146,38 +146,19 @@
                                 </svg>
                                 Labor
                             </h2>
-                            <div class="form-group">
-                                <label>Labor Rate ($/hour)</label>
-                                <div class="input-with-prefix">
-                                    <span class="prefix">$</span>
-                                    <input type="number" id="labor-rate" value="20" min="0" step="0.5">
-                                </div>
+                            
+                            <!-- Pre-processing tasks -->
+                            <div class="labor-section">
+                                <label class="section-label">Pre-processing</label>
+                                <div id="pre-labor-list" class="labor-task-list"></div>
+                                <button class="btn-add-small" onclick="addLaborTask('pre')">+ Add task</button>
                             </div>
-                            <div class="processing-section">
-                                <label class="section-label">Pre-processing time</label>
-                                <div class="time-grid small">
-                                    <div class="time-field">
-                                        <input type="number" id="pre-process-hours" min="0" value="0">
-                                        <label>Hours</label>
-                                    </div>
-                                    <div class="time-field">
-                                        <input type="number" id="pre-process-minutes" min="0" max="59" value="0">
-                                        <label>Min</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="processing-section">
-                                <label class="section-label">Post-processing time</label>
-                                <div class="time-grid small">
-                                    <div class="time-field">
-                                        <input type="number" id="post-process-hours" min="0" value="0">
-                                        <label>Hours</label>
-                                    </div>
-                                    <div class="time-field">
-                                        <input type="number" id="post-process-minutes" min="0" max="59" value="0">
-                                        <label>Min</label>
-                                    </div>
-                                </div>
+                            
+                            <!-- Post-processing tasks -->
+                            <div class="labor-section">
+                                <label class="section-label">Post-processing</label>
+                                <div id="post-labor-list" class="labor-task-list"></div>
+                                <button class="btn-add-small" onclick="addLaborTask('post')">+ Add task</button>
                             </div>
                         </section>
 

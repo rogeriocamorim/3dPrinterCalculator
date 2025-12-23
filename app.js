@@ -418,8 +418,41 @@ function initializeQuotePage() {
     // Initial material row
     addQuoteMaterial();
     
+    // Initial labor tasks (one of each type as example)
+    addLaborTask('pre');
+    addLaborTask('post');
+    
     // Initial calculation
     setTimeout(calculateQuote, 100);
+}
+
+// ============================================
+// Labor Tasks
+// ============================================
+
+function addLaborTask(type) {
+    const container = document.getElementById(`${type}-labor-list`);
+    const div = document.createElement('div');
+    div.className = 'labor-task-item';
+    div.innerHTML = `
+        <input type="text" class="labor-task-name" placeholder="${type === 'pre' ? 'Slicing, Modeling...' : 'Sanding, Painting...'}">
+        <input type="number" class="labor-task-hours" min="0" value="0" placeholder="0">
+        <span class="time-separator">h</span>
+        <input type="number" class="labor-task-minutes" min="0" max="59" value="0" placeholder="0">
+        <span class="time-separator">m</span>
+        <span class="rate-prefix">@</span>
+        <input type="number" class="labor-rate-input" min="0" step="0.5" value="20" placeholder="$/h">
+        <span class="time-separator">$/h</span>
+        <button class="btn-delete-small" onclick="removeLaborTask(this)">×</button>
+    `;
+    container.appendChild(div);
+    calculateQuote();
+}
+
+function removeLaborTask(btn) {
+    const item = btn.closest('.labor-task-item');
+    item.remove();
+    calculateQuote();
 }
 
 function addQuoteMaterial() {
@@ -540,12 +573,42 @@ function calculateQuote() {
     const printMinutes = parseInt(document.getElementById('print-time-minutes').value) || 0;
     const printTime = (printDays * 24) + printHours + (printMinutes / 60);
     
-    // Get processing time
-    const preHours = parseInt(document.getElementById('pre-process-hours')?.value) || 0;
-    const preMinutes = parseInt(document.getElementById('pre-process-minutes')?.value) || 0;
-    const postHours = parseInt(document.getElementById('post-process-hours')?.value) || 0;
-    const postMinutes = parseInt(document.getElementById('post-process-minutes')?.value) || 0;
-    const processingTime = preHours + (preMinutes / 60) + postHours + (postMinutes / 60);
+    // Get processing time and labor costs from tasks
+    let processingTime = 0;
+    let laborCost = 0;
+    const laborTasks = [];
+    
+    // Pre-processing tasks
+    document.querySelectorAll('#pre-labor-list .labor-task-item').forEach(item => {
+        const name = item.querySelector('.labor-task-name')?.value || 'Pre-processing';
+        const hours = parseFloat(item.querySelector('.labor-task-hours')?.value) || 0;
+        const minutes = parseFloat(item.querySelector('.labor-task-minutes')?.value) || 0;
+        const rate = parseFloat(item.querySelector('.labor-rate-input')?.value) || 0;
+        const time = hours + (minutes / 60);
+        const cost = time * rate;
+        
+        if (time > 0) {
+            processingTime += time;
+            laborCost += cost;
+            laborTasks.push({ name, time, rate, cost, type: 'pre' });
+        }
+    });
+    
+    // Post-processing tasks
+    document.querySelectorAll('#post-labor-list .labor-task-item').forEach(item => {
+        const name = item.querySelector('.labor-task-name')?.value || 'Post-processing';
+        const hours = parseFloat(item.querySelector('.labor-task-hours')?.value) || 0;
+        const minutes = parseFloat(item.querySelector('.labor-task-minutes')?.value) || 0;
+        const rate = parseFloat(item.querySelector('.labor-rate-input')?.value) || 0;
+        const time = hours + (minutes / 60);
+        const cost = time * rate;
+        
+        if (time > 0) {
+            processingTime += time;
+            laborCost += cost;
+            laborTasks.push({ name, time, rate, cost, type: 'post' });
+        }
+    });
     
     const totalTime = printTime + processingTime;
     
@@ -602,10 +665,6 @@ function calculateQuote() {
         }
     }
 
-    // Calculate labor cost (processing time × labor rate)
-    const laborRate = parseFloat(document.getElementById('labor-rate')?.value) || 0;
-    const laborCost = processingTime * laborRate;
-
     // Total machine cost (depreciation + maintenance)
     const totalMachineCost = depreciationCost + maintenanceCost;
 
@@ -650,10 +709,10 @@ function calculateQuote() {
     document.getElementById('total-time-display').textContent = formatTime(totalTime);
     
     // Update math breakdowns
-    updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost);
+    updateMathBreakdowns(printer, printTime, laborTasks, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost);
 }
 
-function updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost) {
+function updateMathBreakdowns(printer, printTime, laborTasks, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost) {
     // Material Math
     let materialMath = '';
     document.querySelectorAll('#materials-list .crud-item').forEach(item => {
@@ -758,25 +817,24 @@ function updateMathBreakdowns(printer, printTime, processingTime, laborRate, lab
     
     // Labor Math
     let laborMath = '';
-    if (processingTime > 0 && laborRate > 0) {
-        laborMath = `
-            <div class="math-line">
-                <span class="math-label">Processing Time</span>
-                <span class="math-value">${processingTime.toFixed(2)} hours</span>
-            </div>
-            <div class="math-line">
-                <span class="math-label">Labor Rate</span>
-                <span class="math-value">${formatCurrency(laborRate)}/hour</span>
-            </div>
+    if (laborTasks.length > 0) {
+        laborTasks.forEach(task => {
+            const taskName = task.name || (task.type === 'pre' ? 'Pre-processing' : 'Post-processing');
+            laborMath += `
+                <div class="math-line">
+                    <span class="math-label">${escapeHtml(taskName)}</span>
+                    <span class="math-value">${task.time.toFixed(2)}h × ${formatCurrency(task.rate)} = ${formatCurrency(task.cost)}</span>
+                </div>
+            `;
+        });
+        laborMath += `
             <div class="math-line formula">
-                <span class="math-label">= ${processingTime.toFixed(2)}h × ${formatCurrency(laborRate)}</span>
+                <span class="math-label">Total Labor</span>
                 <span class="math-value">${formatCurrency(laborCost)}</span>
             </div>
         `;
-    } else if (processingTime === 0) {
-        laborMath = '<div class="math-line"><span class="math-label">No processing time entered</span></div>';
     } else {
-        laborMath = '<div class="math-line"><span class="math-label">Set labor rate above</span></div>';
+        laborMath = '<div class="math-line"><span class="math-label">No labor tasks with time</span></div>';
     }
     document.getElementById('labor-math').innerHTML = laborMath;
 }
