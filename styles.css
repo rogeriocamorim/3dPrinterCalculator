@@ -412,6 +412,33 @@ select option {
     height: 18px;
 }
 
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+.btn-secondary svg {
+    width: 18px;
+    height: 18px;
+}
+
 .btn-add {
     display: flex;
     align-items: center;
@@ -439,6 +466,61 @@ select option {
 .btn-add svg {
     width: 16px;
     height: 16px;
+}
+
+/* File Upload */
+.file-upload-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-upload:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+.btn-upload svg {
+    width: 16px;
+    height: 16px;
+}
+
+.upload-status {
+    margin-top: 8px;
+    font-size: 12px;
+    text-align: center;
+    min-height: 18px;
+}
+
+.upload-status.processing {
+    color: var(--accent);
+}
+
+.upload-status.success {
+    color: var(--success);
+}
+
+.upload-status.error {
+    color: var(--danger);
 }
 
 .btn-delete {
@@ -496,6 +578,39 @@ select option {
     box-shadow: none;
     background: var(--bg-card);
     border-radius: 4px;
+}
+
+.crud-item .input-with-suffix {
+    display: flex;
+    align-items: stretch;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.crud-item .input-with-suffix input {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    padding: 8px;
+}
+
+.crud-item .input-with-suffix .suffix {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    background: var(--bg-card-hover);
+    border-left: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.crud-item .input-with-suffix input:focus {
+    background: transparent;
+    box-shadow: none;
 }
 
 .crud-item.deleting {
@@ -948,6 +1063,31 @@ select option {
     padding: 10px 12px;
     margin-bottom: 8px;
     border: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+/* Material cost breakdown with scroll when many items */
+#material-math.expanded {
+    max-height: 300px;
+}
+
+/* Custom scrollbar for material breakdown */
+#material-math.expanded::-webkit-scrollbar {
+    width: 6px;
+}
+
+#material-math.expanded::-webkit-scrollbar-track {
+    background: var(--bg-input);
+    border-radius: 3px;
+}
+
+#material-math.expanded::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+#material-math.expanded::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
 }
 
 .result-math .math-line {
@@ -1122,6 +1262,21 @@ select option {
     width: 16px;
     height: 16px;
     stroke: var(--text-muted);
+}
+
+.quote-actions {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quote-actions .btn-primary,
+.quote-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
 }
 
 /* Empty State */

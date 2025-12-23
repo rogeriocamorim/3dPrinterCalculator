@@ -101,6 +101,16 @@
                                     <label>Min</label>
                                 </div>
                             </div>
+                            <div class="file-upload-section">
+                                <label for="gcode-upload" class="btn-upload">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                    </svg>
+                                    Upload .3mf File
+                                </label>
+                                <input type="file" id="gcode-upload" accept=".3mf" style="display: none;">
+                                <div id="upload-status" class="upload-status"></div>
+                            </div>
                         </section>
 
                         <!-- Materials -->
@@ -317,6 +327,23 @@
                                     <span id="total-time-display">0h 0m</span>
                                 </div>
                             </div>
+                            
+                            <!-- Quote Actions -->
+                            <div class="quote-actions">
+                                <button class="btn-primary" id="save-quote-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                                        <path d="M17 21v-8H7v8M7 3v5h8"/>
+                                    </svg>
+                                    Save Quote
+                                </button>
+                                <button class="btn-secondary" id="load-quote-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                    </svg>
+                                    Load Quote
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -356,7 +383,11 @@
 
     <!-- Hidden file input for fallback -->
     <input type="file" id="file-input" accept=".json" style="display: none;">
+    <!-- Hidden file input for loading quotes -->
+    <input type="file" id="quote-load-input" accept=".json,.3mf" style="display: none;">
 
+    <!-- JSZip for parsing .3mf files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

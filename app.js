@@ -18,6 +18,10 @@ let fileHandle = null;
 let isConnected = false;
 let autoSaveTimeout = null;
 
+// Current .3mf file reference for quote embedding
+let current3mfFile = null;
+let current3mfFileName = null;
+
 // ID Counters
 let printerIdCounter = 1;
 let filamentIdCounter = 1;
@@ -365,6 +369,26 @@ function initializeQuotePage() {
     // Add extra cost button
     document.getElementById('add-extra-cost-btn').addEventListener('click', addExtraCost);
     
+    // .3mf file upload handler
+    const gcodeUpload = document.getElementById('gcode-upload');
+    if (gcodeUpload) {
+        gcodeUpload.addEventListener('change', handle3mfUpload);
+    }
+    
+    // Save quote button
+    const saveQuoteBtn = document.getElementById('save-quote-btn');
+    if (saveQuoteBtn) {
+        saveQuoteBtn.addEventListener('click', saveQuote);
+    }
+    
+    // Load quote button
+    const loadQuoteBtn = document.getElementById('load-quote-btn');
+    const quoteLoadInput = document.getElementById('quote-load-input');
+    if (loadQuoteBtn && quoteLoadInput) {
+        loadQuoteBtn.addEventListener('click', () => quoteLoadInput.click());
+        quoteLoadInput.addEventListener('change', handleLoadQuote);
+    }
+    
     // Pricing mode changes
     document.querySelectorAll('input[name="pricing-mode"]').forEach(radio => {
         radio.addEventListener('change', handlePricingModeChange);
@@ -427,6 +451,528 @@ function initializeQuotePage() {
     
     // Initial calculation
     setTimeout(calculateQuote, 100);
+}
+
+// ============================================
+// .3mf File Upload and Parsing
+// ============================================
+
+async function handle3mfUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const statusEl = document.getElementById('upload-status');
+    statusEl.textContent = 'Parsing file...';
+    statusEl.className = 'upload-status processing';
+    
+    try {
+        // Check if JSZip is available
+        if (typeof JSZip === 'undefined') {
+            throw new Error('JSZip library not loaded. Please refresh the page.');
+        }
+        
+        // Read file as array buffer and store reference
+        const arrayBuffer = await file.arrayBuffer();
+        current3mfFile = arrayBuffer;
+        current3mfFileName = file.name;
+        
+        // Load as ZIP using JSZip
+        const zip = await JSZip.loadAsync(arrayBuffer);
+        
+        // Check for embedded quote data
+        if (zip.files['Metadata/quote.json']) {
+            try {
+                const quoteDataStr = await zip.files['Metadata/quote.json'].async('text');
+                const quoteData = JSON.parse(quoteDataStr);
+                loadQuoteFromData(quoteData);
+                statusEl.textContent = 'File loaded with saved quote!';
+                statusEl.className = 'upload-status success';
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.className = 'upload-status';
+                }, 3000);
+                // Keep file reference for saving back to same file
+                return; // Don't parse G-code if quote data exists
+            } catch (e) {
+                console.warn('Could not load embedded quote data:', e);
+            }
+        }
+        
+        // Find the G-code file (usually in Metadata/plate_1.gcode or similar)
+        let gcodeFile = null;
+        let gcodePath = null;
+        
+        // Try common paths
+        const possiblePaths = [
+            'Metadata/plate_1.gcode',
+            'Metadata/plate_2.gcode',
+            'Metadata/plate_3.gcode',
+            'Metadata/*.gcode'
+        ];
+        
+        for (const path of possiblePaths) {
+            if (path.includes('*')) {
+                // Search for any .gcode file in Metadata
+                const files = Object.keys(zip.files).filter(f => 
+                    f.startsWith('Metadata/') && f.endsWith('.gcode')
+                );
+                if (files.length > 0) {
+                    gcodePath = files[0];
+                    gcodeFile = zip.files[gcodePath];
+                    break;
+                }
+            } else if (zip.files[path]) {
+                gcodePath = path;
+                gcodeFile = zip.files[path];
+                break;
+            }
+        }
+        
+        if (!gcodeFile) {
+            throw new Error('G-code file not found in .3mf archive');
+        }
+        
+        // Read G-code content
+        const gcodeContent = await gcodeFile.async('text');
+        
+        // Parse print time
+        const timeMatch = gcodeContent.match(/model printing time:\s*(\d+)h\s*(\d+)m\s*(\d+)s/i);
+        if (timeMatch) {
+            const hours = parseInt(timeMatch[1]) || 0;
+            const minutes = parseInt(timeMatch[2]) || 0;
+            const seconds = parseInt(timeMatch[3]) || 0;
+            
+            // Convert to days, hours, minutes
+            const totalMinutes = hours * 60 + minutes + Math.round(seconds / 60);
+            const days = Math.floor(totalMinutes / (24 * 60));
+            const remainingMinutes = totalMinutes % (24 * 60);
+            const finalHours = Math.floor(remainingMinutes / 60);
+            const finalMinutes = remainingMinutes % 60;
+            
+            document.getElementById('print-time-days').value = days;
+            document.getElementById('print-time-hours').value = finalHours;
+            document.getElementById('print-time-minutes').value = finalMinutes;
+        }
+        
+        // Parse filament data
+        const filamentLengthMatch = gcodeContent.match(/total filament length\s*\[mm\]\s*:\s*([\d.,\s]+)/i);
+        const filamentWeightMatch = gcodeContent.match(/total filament weight\s*\[g\]\s*:\s*([\d.,\s]+)/i);
+        
+        if (filamentLengthMatch || filamentWeightMatch) {
+            // Clear existing materials
+            const materialsList = document.getElementById('materials-list');
+            materialsList.innerHTML = '';
+            
+            // Parse filament weights (more accurate than length)
+            if (filamentWeightMatch) {
+                const weights = filamentWeightMatch[1].split(',').map(w => parseFloat(w.trim())).filter(w => !isNaN(w) && w > 0);
+                
+                // Parse filament colors/types if available
+                const colorMatch = gcodeContent.match(/filament_colour\s*=\s*([^;]+)/i);
+                const colors = colorMatch ? colorMatch[1].split(';')[0].split(',').map(c => c.trim()) : [];
+                
+                // Add a material entry for each filament
+                weights.forEach((weight, index) => {
+                    addQuoteMaterial();
+                    const materialItems = materialsList.querySelectorAll('.crud-item');
+                    const lastItem = materialItems[materialItems.length - 1];
+                    
+                    // Set quantity (weight in grams)
+                    const quantityInput = lastItem.querySelector('.material-quantity');
+                    if (quantityInput) {
+                        quantityInput.value = weight.toFixed(2);
+                    }
+                    
+                });
+            } else if (filamentLengthMatch) {
+                // Fallback to length if weight not available
+                const lengths = filamentLengthMatch[1].split(',').map(l => parseFloat(l.trim())).filter(l => !isNaN(l) && l > 0);
+                
+                // Convert length to approximate weight (assuming 1.75mm diameter, 1.26 g/cm³ density)
+                // Volume = π * (diameter/2)² * length
+                // Weight = volume * density
+                const diameter = 1.75; // mm
+                const density = 1.26; // g/cm³
+                
+                lengths.forEach((length) => {
+                    const volumeCm3 = (Math.PI * Math.pow(diameter / 20, 2) * length / 10); // Convert to cm³
+                    const weight = volumeCm3 * density;
+                    
+                    addQuoteMaterial();
+                    const materialItems = materialsList.querySelectorAll('.crud-item');
+                    const lastItem = materialItems[materialItems.length - 1];
+                    
+                    const quantityInput = lastItem.querySelector('.material-quantity');
+                    if (quantityInput) {
+                        quantityInput.value = weight.toFixed(2);
+                    }
+                });
+            }
+            
+            // Update all material selects after adding materials
+            updateMaterialSelects();
+        }
+        
+        // Recalculate quote
+        calculateQuote();
+        
+        statusEl.textContent = 'File loaded successfully!';
+        statusEl.className = 'upload-status success';
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Error parsing .3mf file:', error);
+        statusEl.textContent = `Error: ${error.message}`;
+        statusEl.className = 'upload-status error';
+        
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+        }, 5000);
+    }
+    
+    // Reset file input
+    event.target.value = '';
+}
+
+// ============================================
+// Quote Save/Load Functions
+// ============================================
+
+function collectQuoteData() {
+    // Get printer selection
+    const printerSelect = document.getElementById('printer-select');
+    const printerId = printerSelect?.value || null;
+    const printer = appData.printers.find(p => p.id === printerId);
+    
+    // Get print time
+    const days = parseInt(document.getElementById('print-time-days')?.value) || 0;
+    const hours = parseInt(document.getElementById('print-time-hours')?.value) || 0;
+    const minutes = parseInt(document.getElementById('print-time-minutes')?.value) || 0;
+    const totalMinutes = days * 24 * 60 + hours * 60 + minutes;
+    const printTime = totalMinutes / 60; // in hours
+    
+    // Get materials
+    const materials = [];
+    document.querySelectorAll('#materials-list .crud-item').forEach(item => {
+        const selectEl = item.querySelector('.material-select');
+        const quantityInput = item.querySelector('.material-quantity');
+        const materialId = selectEl?.value;
+        const quantity = parseFloat(quantityInput?.value) || 0;
+        
+        if (materialId && quantity > 0) {
+            const filament = appData.filaments.find(f => f.id === materialId || f.name === materialId);
+            if (filament) {
+                materials.push({
+                    materialId: filament.id || filament.name,
+                    materialName: filament.name,
+                    quantity: quantity,
+                    pricePerKg: filament.pricePerKg
+                });
+            }
+        }
+    });
+    
+    // Get extra costs
+    const extraCosts = [];
+    document.querySelectorAll('#extra-costs-list .crud-item').forEach(item => {
+        const nameInput = item.querySelector('.extra-cost-name');
+        const valueInput = item.querySelector('.extra-cost-value');
+        const name = nameInput?.value || '';
+        const value = parseFloat(valueInput?.value) || 0;
+        
+        if (name && value > 0) {
+            extraCosts.push({ name, value });
+        }
+    });
+    
+    // Get labor tasks
+    const laborTasks = {
+        pre: appData.laborTasks?.pre || [],
+        post: appData.laborTasks?.post || []
+    };
+    
+    // Get pricing mode
+    const pricingMode = document.querySelector('input[name="pricing-mode"]:checked')?.value || 'profit-percent';
+    const profitPercent = parseFloat(document.getElementById('profit-percent')?.value) || 0;
+    const pricePerHour = parseFloat(document.getElementById('price-per-hour')?.value) || 0;
+    const fixedPrice = parseFloat(document.getElementById('fixed-price')?.value) || 0;
+    
+    // Get calculated values
+    const finalPrice = parseFloat(document.getElementById('final-price')?.textContent.replace(/[^0-9.]/g, '')) || 0;
+    const totalCost = parseFloat(document.getElementById('total-cost')?.textContent.replace(/[^0-9.]/g, '')) || 0;
+    
+    return {
+        timestamp: new Date().toISOString(),
+        printer: printer ? {
+            id: printer.id,
+            name: printer.name
+        } : null,
+        printTime: {
+            days,
+            hours,
+            minutes,
+            totalHours: printTime
+        },
+        materials,
+        extraCosts,
+        laborTasks,
+        pricing: {
+            mode: pricingMode,
+            profitPercent,
+            pricePerHour,
+            fixedPrice
+        },
+        calculated: {
+            finalPrice,
+            totalCost
+        }
+    };
+}
+
+async function saveQuote() {
+    try {
+        const quoteData = collectQuoteData();
+        
+        if (current3mfFile && current3mfFileName) {
+            // Embed quote in .3mf file
+            await saveQuoteTo3mf(quoteData, current3mfFile, current3mfFileName);
+        } else {
+            // Save as JSON file
+            await saveQuoteToJson(quoteData);
+        }
+    } catch (error) {
+        console.error('Error saving quote:', error);
+        alert('Error saving quote: ' + error.message);
+    }
+}
+
+async function saveQuoteTo3mf(quoteData, arrayBuffer, fileName) {
+    if (typeof JSZip === 'undefined') {
+        throw new Error('JSZip library not loaded');
+    }
+    
+    // Load existing ZIP
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    
+    // Add quote data as JSON
+    zip.file('Metadata/quote.json', JSON.stringify(quoteData, null, 2));
+    
+    // Generate new .3mf file
+    const blob = await zip.generateAsync({ type: 'blob' });
+    
+    // Download the file
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName.replace('.3mf', '_quote.3mf') || 'quote.3mf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    const statusEl = document.getElementById('upload-status');
+    if (statusEl) {
+        statusEl.textContent = 'Quote saved to .3mf file!';
+        statusEl.className = 'upload-status success';
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+        }, 3000);
+    }
+}
+
+async function saveQuoteToJson(quoteData) {
+    // Create JSON blob
+    const jsonStr = JSON.stringify(quoteData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `quote_${timestamp}.json`;
+    
+    // Download the file
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    const statusEl = document.getElementById('upload-status');
+    if (statusEl) {
+        statusEl.textContent = 'Quote saved as JSON file!';
+        statusEl.className = 'upload-status success';
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+        }, 3000);
+    }
+}
+
+async function handleLoadQuote(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const statusEl = document.getElementById('upload-status');
+    if (statusEl) {
+        statusEl.textContent = 'Loading quote...';
+        statusEl.className = 'upload-status processing';
+    }
+    
+    try {
+        if (file.name.endsWith('.3mf')) {
+            // Handle .3mf file - use existing upload handler
+            // Create a synthetic event for handle3mfUpload
+            const syntheticEvent = {
+                target: {
+                    files: [file],
+                    value: ''
+                }
+            };
+            await handle3mfUpload(syntheticEvent);
+        } else if (file.name.endsWith('.json')) {
+            // Handle JSON file
+            const text = await file.text();
+            const quoteData = JSON.parse(text);
+            loadQuoteFromData(quoteData);
+            
+            if (statusEl) {
+                statusEl.textContent = 'Quote loaded successfully!';
+                statusEl.className = 'upload-status success';
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.className = 'upload-status';
+                }, 3000);
+            }
+        } else {
+            throw new Error('Unsupported file type. Please use .3mf or .json files.');
+        }
+    } catch (error) {
+        console.error('Error loading quote:', error);
+        if (statusEl) {
+            statusEl.textContent = `Error: ${error.message}`;
+            statusEl.className = 'upload-status error';
+            setTimeout(() => {
+                statusEl.textContent = '';
+                statusEl.className = 'upload-status';
+            }, 5000);
+        }
+    }
+    
+    // Reset file input
+    event.target.value = '';
+}
+
+function loadQuoteFromData(quoteData) {
+    // Load printer
+    if (quoteData.printer) {
+        const printerSelect = document.getElementById('printer-select');
+        if (printerSelect) {
+            printerSelect.value = quoteData.printer.id;
+        }
+    }
+    
+    // Load print time
+    if (quoteData.printTime) {
+        document.getElementById('print-time-days').value = quoteData.printTime.days || 0;
+        document.getElementById('print-time-hours').value = quoteData.printTime.hours || 0;
+        document.getElementById('print-time-minutes').value = quoteData.printTime.minutes || 0;
+    }
+    
+    // Load materials
+    const materialsList = document.getElementById('materials-list');
+    materialsList.innerHTML = '';
+    
+    if (quoteData.materials && quoteData.materials.length > 0) {
+        quoteData.materials.forEach(material => {
+            addQuoteMaterial();
+            const materialItems = materialsList.querySelectorAll('.crud-item');
+            const lastItem = materialItems[materialItems.length - 1];
+            
+            const select = lastItem.querySelector('.material-select');
+            const quantityInput = lastItem.querySelector('.material-quantity');
+            
+            if (select) {
+                updateMaterialSelects();
+                // Try to find matching material
+                const matchingFilament = appData.filaments.find(f => 
+                    (f.id === material.materialId || f.name === material.materialId) ||
+                    f.name === material.materialName
+                );
+                if (matchingFilament) {
+                    select.value = matchingFilament.id || matchingFilament.name;
+                }
+            }
+            
+            if (quantityInput) {
+                quantityInput.value = material.quantity;
+            }
+        });
+    }
+    
+    // Load extra costs
+    const extraCostsList = document.getElementById('extra-costs-list');
+    extraCostsList.innerHTML = '';
+    
+    if (quoteData.extraCosts && quoteData.extraCosts.length > 0) {
+        quoteData.extraCosts.forEach(cost => {
+            addExtraCost();
+            const costItems = extraCostsList.querySelectorAll('.crud-item');
+            const lastItem = costItems[costItems.length - 1];
+            
+            const nameInput = lastItem.querySelector('.extra-cost-name');
+            const valueInput = lastItem.querySelector('.extra-cost-value');
+            
+            if (nameInput) nameInput.value = cost.name;
+            if (valueInput) valueInput.value = cost.value;
+        });
+    }
+    
+    // Load labor tasks
+    if (quoteData.laborTasks) {
+        if (quoteData.laborTasks.pre) {
+            appData.laborTasks.pre = quoteData.laborTasks.pre;
+        }
+        if (quoteData.laborTasks.post) {
+            appData.laborTasks.post = quoteData.laborTasks.post;
+        }
+        renderLaborTasks();
+    }
+    
+    // Load pricing mode
+    if (quoteData.pricing) {
+        const pricingMode = quoteData.pricing.mode || 'profit-percent';
+        const modeRadio = document.querySelector(`input[name="pricing-mode"][value="${pricingMode}"]`);
+        if (modeRadio) {
+            modeRadio.checked = true;
+            handlePricingModeChange({ target: modeRadio });
+        }
+        
+        if (quoteData.pricing.profitPercent !== undefined) {
+            document.getElementById('profit-percent').value = quoteData.pricing.profitPercent;
+        }
+        if (quoteData.pricing.pricePerHour !== undefined) {
+            document.getElementById('price-per-hour').value = quoteData.pricing.pricePerHour;
+        }
+        if (quoteData.pricing.fixedPrice !== undefined) {
+            document.getElementById('fixed-price').value = quoteData.pricing.fixedPrice;
+        }
+    }
+    
+    // Recalculate quote
+    setTimeout(() => {
+        calculateQuote();
+    }, 100);
 }
 
 // ============================================
@@ -519,7 +1065,10 @@ function addQuoteMaterial() {
             <select class="material-select">
             <option value="">Select material...</option>
             </select>
-        <input type="number" class="material-quantity" placeholder="0g" min="0" step="0.1">
+        <div class="input-with-suffix">
+            <input type="number" class="material-quantity" placeholder="0" min="0" step="0.1">
+            <span class="suffix">g</span>
+        </div>
         <button class="btn-delete" onclick="removeQuoteItem(this)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 6L6 18M6 6l12 12"/>
