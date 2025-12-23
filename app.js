@@ -593,9 +593,9 @@ function calculateQuote() {
         }
         const maintenanceCost = maintenanceCostPerHour * printTime;
         
-        if (printer.includeDepreciation !== false && printer.cost && printer.yearsToReturn && printer.hoursPerDay) {
-            // Depreciation: Printer Cost / (365 * Years * Daily Hours) * Print Time
-            const depreciationPerHour = printer.cost / (365 * printer.yearsToReturn * printer.hoursPerDay);
+        if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
+            // Depreciation: Printer Cost / Expected Lifetime Hours * Print Time
+            const depreciationPerHour = printer.cost / printer.expectedLifetimeHours;
             depreciationCost = (depreciationPerHour * printTime) + repairCost + maintenanceCost;
         } else {
             // Only repair + maintenance cost
@@ -710,9 +710,9 @@ function updateMathBreakdowns(printer, printTime, materialCost, electricityCost,
             : 0;
         const maintenanceCost = maintenancePerHour * printTime;
         
-        if (printer.includeDepreciation !== false && printer.cost && printer.yearsToReturn && printer.hoursPerDay) {
-            const totalHours = 365 * printer.yearsToReturn * printer.hoursPerDay;
-            const depPerHour = printer.cost / totalHours;
+        if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
+            const lifetimeHours = printer.expectedLifetimeHours;
+            const depPerHour = printer.cost / lifetimeHours;
             const depCost = depPerHour * printTime;
             
             depreciationMath = `
@@ -721,12 +721,12 @@ function updateMathBreakdowns(printer, printTime, materialCost, electricityCost,
                     <span class="math-value">${formatCurrency(printer.cost)}</span>
                 </div>
                 <div class="math-line">
-                    <span class="math-label">Total Hours</span>
-                    <span class="math-value">365 × ${printer.yearsToReturn}yr × ${printer.hoursPerDay}h/day = ${totalHours.toLocaleString()}h</span>
+                    <span class="math-label">Expected Lifetime</span>
+                    <span class="math-value">${lifetimeHours.toLocaleString()} hours</span>
                 </div>
                 <div class="math-line">
                     <span class="math-label">Depreciation/Hour</span>
-                    <span class="math-value">${formatCurrency(printer.cost)} ÷ ${totalHours.toLocaleString()} = ${formatCurrency(depPerHour)}</span>
+                    <span class="math-value">${formatCurrency(printer.cost)} ÷ ${lifetimeHours.toLocaleString()}h = ${formatCurrency(depPerHour)}</span>
                 </div>
                 <div class="math-line">
                     <span class="math-label">Depreciation</span>
@@ -829,8 +829,7 @@ function createPrinter() {
         kwPerHour: 0.2,
         costPerKwh: 0.12,
         cost: 0,
-        yearsToReturn: 2,
-        hoursPerDay: 8,
+        expectedLifetimeHours: 5000,  // Expected total hours before replacement
         includeDepreciation: true,
         repairCostPerHour: 0,
         // Maintenance cost calculation
@@ -856,7 +855,7 @@ function createPrinter() {
 function updatePrinter(id, field, value) {
     const printer = appData.printers.find(p => p.id === id);
     if (printer) {
-        if (['kwPerHour', 'costPerKwh', 'cost', 'yearsToReturn', 'hoursPerDay', 'repairCostPerHour', 'maintenanceCost', 'maintenanceInterval'].includes(field)) {
+        if (['kwPerHour', 'costPerKwh', 'cost', 'expectedLifetimeHours', 'repairCostPerHour', 'maintenanceCost', 'maintenanceInterval'].includes(field)) {
             printer[field] = parseFloat(value) || 0;
         } else if (field === 'includeDepreciation') {
             printer[field] = value;
@@ -937,34 +936,29 @@ function renderPrinters() {
             </div>
             <div class="item-card-section">
                 <div class="section-header">
-                    <label class="section-title">Machine Pay Back</label>
+                    <label class="section-title">Machine Depreciation</label>
                     <label class="toggle-switch">
                         <input type="checkbox" ${printer.includeDepreciation !== false ? 'checked' : ''}
                             onchange="updatePrinter('${printer.id}', 'includeDepreciation', this.checked)">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
+                <p class="section-description">Based on expected lifetime hours of the printer</p>
                 <div class="item-card-fields ${printer.includeDepreciation === false ? 'disabled' : ''}">
                     <div class="item-field">
                         <label>Purchase Price ($)</label>
                         <input type="number" value="${printer.cost || ''}" step="1" min="0" placeholder="0"
                             onchange="updatePrinter('${printer.id}', 'cost', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
-            </div>
-                    <div class="item-field">
-                <label>Years to Return</label>
-                        <input type="number" value="${printer.yearsToReturn || ''}" step="0.5" min="0" placeholder="0"
-                            onchange="updatePrinter('${printer.id}', 'yearsToReturn', this.value)"
-                            ${printer.includeDepreciation === false ? 'disabled' : ''}>
                     </div>
                     <div class="item-field">
-                        <label>Hours/Day Use</label>
-                        <input type="number" value="${printer.hoursPerDay || ''}" step="1" min="0" max="24" placeholder="0"
-                            onchange="updatePrinter('${printer.id}', 'hoursPerDay', this.value)"
+                        <label>Lifetime Hours</label>
+                        <input type="number" value="${printer.expectedLifetimeHours || ''}" step="100" min="0" placeholder="5000"
+                            onchange="updatePrinter('${printer.id}', 'expectedLifetimeHours', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
                     </div>
-                    <div class="item-field">
-                        <label>Repair $/Hour</label>
+                    <div class="item-field full-width">
+                        <label>Repair Cost ($/Hour)</label>
                         <input type="number" value="${printer.repairCostPerHour || ''}" step="0.01" min="0" placeholder="0"
                             onchange="updatePrinter('${printer.id}', 'repairCostPerHour', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
@@ -1172,8 +1166,11 @@ function loadDefaultData() {
                     kwPerHour: 0.22,
                     costPerKwh: 0.12,
                     cost: 200,
-                    yearsToReturn: 2,
-                    hoursPerDay: 8
+                    expectedLifetimeHours: 5000,
+                    includeDepreciation: true,
+                    repairCostPerHour: 0,
+                    maintenanceCost: 0,
+                    maintenanceInterval: 100
                 }
             ],
             filaments: [

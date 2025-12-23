@@ -114,7 +114,7 @@ Simply open `index.html` in your browser. Note: The File System Access API (for 
      - Name
      - Power consumption (kW)
      - Electricity rate ($/kWh)
-     - Purchase price, years to ROI, daily hours (for depreciation)
+     - Purchase price and expected lifetime hours (for depreciation)
      - Repair cost per hour (optional)
      - Maintenance cost and interval (optional)
 
@@ -145,7 +145,7 @@ Electricity Cost = Print Time (hours) × Power (kW) × Rate ($/kWh)
 
 ### Machine Cost (Depreciation + Repair + Maintenance)
 ```
-Depreciation per Hour = Purchase Price / (365 × Years to Return × Hours per Day)
+Depreciation per Hour = Purchase Price / Expected Lifetime Hours
 Depreciation = Depreciation per Hour × Print Time
 
 Repair Cost = Repair Rate ($/hour) × Print Time
@@ -155,6 +155,12 @@ Maintenance = Maintenance per Hour × Print Time
 
 Total Machine Cost = Depreciation + Repair Cost + Maintenance
 ```
+
+**Example:**
+- Printer Cost: $3,700
+- Expected Lifetime: 5,000 hours
+- Depreciation/Hour: $3,700 ÷ 5,000 = $0.74/hour
+- 9-hour print: $0.74 × 9 = $6.66 depreciation
 
 ### Final Price
 Depending on pricing mode:
@@ -188,8 +194,7 @@ The app stores data in a JSON file with this structure:
       "kwPerHour": 0.22,
       "costPerKwh": 0.12,
       "cost": 200,
-      "yearsToReturn": 2,
-      "hoursPerDay": 8,
+      "expectedLifetimeHours": 5000,
       "includeDepreciation": true,
       "repairCostPerHour": 0,
       "maintenanceCost": 10,
