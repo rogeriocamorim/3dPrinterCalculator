@@ -1418,6 +1418,10 @@ select option {
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .modal-buttons .btn-secondary:hover {
