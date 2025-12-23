@@ -581,13 +581,24 @@ function calculateQuote() {
         electricityCost = printTime * (printer.kwPerHour || 0) * (printer.costPerKwh || 0);
     }
     
-    // Calculate machine cost (depreciation)
+    // Calculate machine cost (depreciation + maintenance)
     let depreciationCost = 0;
+    let maintenanceCost = 0;
     if (printer && printTime > 0) {
+        // Depreciation
         if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
-            // Depreciation: Printer Cost / Expected Lifetime Hours * Print Time
             const depreciationPerHour = printer.cost / printer.expectedLifetimeHours;
             depreciationCost = depreciationPerHour * printTime;
+        }
+        
+        // Scheduled maintenance tasks
+        if (printer.maintenanceTasks && printer.maintenanceTasks.length > 0) {
+            printer.maintenanceTasks.forEach(task => {
+                if (task.cost > 0 && task.intervalHours > 0) {
+                    const costPerHour = task.cost / task.intervalHours;
+                    maintenanceCost += costPerHour * printTime;
+                }
+            });
         }
     }
 
@@ -595,8 +606,11 @@ function calculateQuote() {
     const laborRate = parseFloat(document.getElementById('labor-rate')?.value) || 0;
     const laborCost = processingTime * laborRate;
 
+    // Total machine cost (depreciation + maintenance)
+    const totalMachineCost = depreciationCost + maintenanceCost;
+
     // Total cost
-    const totalCost = materialCost + extraCost + electricityCost + depreciationCost + laborCost;
+    const totalCost = materialCost + extraCost + electricityCost + totalMachineCost + laborCost;
 
     // Calculate final price based on mode
     const pricingMode = document.querySelector('input[name="pricing-mode"]:checked').value;
@@ -626,7 +640,7 @@ function calculateQuote() {
     document.getElementById('material-cost').textContent = formatCurrency(materialCost);
     document.getElementById('extra-cost').textContent = formatCurrency(extraCost);
     document.getElementById('electricity-cost').textContent = formatCurrency(electricityCost);
-    document.getElementById('depreciation-cost').textContent = formatCurrency(depreciationCost);
+    document.getElementById('depreciation-cost').textContent = formatCurrency(totalMachineCost);
     document.getElementById('labor-cost').textContent = formatCurrency(laborCost);
     document.getElementById('total-cost').textContent = formatCurrency(totalCost);
     document.getElementById('total-cost-mini').textContent = formatCurrency(totalCost);
@@ -636,10 +650,10 @@ function calculateQuote() {
     document.getElementById('total-time-display').textContent = formatTime(totalTime);
     
     // Update math breakdowns
-    updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost);
+    updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost);
 }
 
-function updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost) {
+function updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost) {
     // Material Math
     let materialMath = '';
     document.querySelectorAll('#materials-list .crud-item').forEach(item => {
@@ -697,26 +711,41 @@ function updateMathBreakdowns(printer, printTime, processingTime, laborRate, lab
     // Depreciation/Machine Math
     let depreciationMath = '';
     if (printer && printTime > 0) {
+        const totalMachineCost = depreciationCost + maintenanceCost;
+        
         if (printer.includeDepreciation !== false && printer.cost && printer.expectedLifetimeHours) {
             const lifetimeHours = printer.expectedLifetimeHours;
             const depPerHour = printer.cost / lifetimeHours;
             
             depreciationMath = `
                 <div class="math-line">
-                    <span class="math-label">Printer Cost</span>
-                    <span class="math-value">${formatCurrency(printer.cost)}</span>
+                    <span class="math-label">Depreciation</span>
+                    <span class="math-value">${formatCurrency(printer.cost)} ÷ ${lifetimeHours.toLocaleString()}h × ${printTime.toFixed(2)}h = ${formatCurrency(depreciationCost)}</span>
                 </div>
-                <div class="math-line">
-                    <span class="math-label">Lifetime</span>
-                    <span class="math-value">${lifetimeHours.toLocaleString()} hours</span>
-                </div>
-                <div class="math-line">
-                    <span class="math-label">Cost/Hour</span>
-                    <span class="math-value">${formatCurrency(printer.cost)} ÷ ${lifetimeHours.toLocaleString()}h = ${formatCurrency(depPerHour)}</span>
-                </div>
+            `;
+        }
+        
+        // Add maintenance tasks breakdown
+        if (printer.maintenanceTasks && printer.maintenanceTasks.length > 0) {
+            printer.maintenanceTasks.forEach(task => {
+                if (task.cost > 0 && task.intervalHours > 0) {
+                    const costPerHour = task.cost / task.intervalHours;
+                    const taskCost = costPerHour * printTime;
+                    depreciationMath += `
+                        <div class="math-line">
+                            <span class="math-label">${escapeHtml(task.name) || 'Maintenance'}</span>
+                            <span class="math-value">${formatCurrency(task.cost)} ÷ ${task.intervalHours}h × ${printTime.toFixed(2)}h = ${formatCurrency(taskCost)}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        if (depreciationMath) {
+            depreciationMath += `
                 <div class="math-line formula">
-                    <span class="math-label">= ${formatCurrency(depPerHour)} × ${printTime.toFixed(2)}h</span>
-                    <span class="math-value">${formatCurrency(depreciationCost)}</span>
+                    <span class="math-label">Total Machine Cost</span>
+                    <span class="math-value">${formatCurrency(totalMachineCost)}</span>
                 </div>
             `;
         } else {
@@ -780,7 +809,8 @@ function createPrinter() {
         costPerKwh: 0.12,
         cost: 0,
         expectedLifetimeHours: 5000,
-        includeDepreciation: true
+        includeDepreciation: true,
+        maintenanceTasks: []  // Array of { name, cost, intervalHours }
     };
     
     appData.printers.push(newPrinter);
@@ -904,8 +934,89 @@ function renderPrinters() {
                     </div>
                 </div>
             </div>
+            <div class="item-card-section">
+                <label class="section-title">Scheduled Maintenance</label>
+                <p class="section-description">Add recurring maintenance costs (grease, belts, etc.)</p>
+                <div class="maintenance-list" id="maintenance-${printer.id}">
+                    ${renderMaintenanceTasks(printer)}
+                </div>
+                <button class="btn-add" onclick="addMaintenanceTask('${printer.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Maintenance Task
+                </button>
+            </div>
         </div>
     `).join('');
+}
+
+// ============================================
+// Printer Maintenance Tasks
+// ============================================
+
+function renderMaintenanceTasks(printer) {
+    const tasks = printer.maintenanceTasks || [];
+    if (tasks.length === 0) {
+        return '<p class="empty-hint">No maintenance tasks yet</p>';
+    }
+    
+    return tasks.map((task, index) => `
+        <div class="maintenance-item">
+            <input type="text" class="maintenance-name" value="${escapeHtml(task.name)}" placeholder="Task name"
+                onchange="updateMaintenanceTask('${printer.id}', ${index}, 'name', this.value)">
+            <input type="number" class="maintenance-cost" value="${task.cost || ''}" placeholder="$" min="0" step="0.01"
+                onchange="updateMaintenanceTask('${printer.id}', ${index}, 'cost', this.value)">
+            <span class="maintenance-separator">every</span>
+            <input type="number" class="maintenance-interval" value="${task.intervalHours || ''}" placeholder="hrs" min="1" step="1"
+                onchange="updateMaintenanceTask('${printer.id}', ${index}, 'intervalHours', this.value)">
+            <span class="maintenance-unit">h</span>
+            <button class="btn-delete-small" onclick="removeMaintenanceTask('${printer.id}', ${index})">×</button>
+        </div>
+    `).join('');
+}
+
+function addMaintenanceTask(printerId) {
+    const printer = appData.printers.find(p => p.id === printerId);
+    if (!printer) return;
+    
+    if (!printer.maintenanceTasks) {
+        printer.maintenanceTasks = [];
+    }
+    
+    printer.maintenanceTasks.push({
+        name: '',
+        cost: 0,
+        intervalHours: 1000
+    });
+    
+    renderPrinters();
+    calculateQuote();
+    autoSave();
+}
+
+function updateMaintenanceTask(printerId, taskIndex, field, value) {
+    const printer = appData.printers.find(p => p.id === printerId);
+    if (!printer || !printer.maintenanceTasks || !printer.maintenanceTasks[taskIndex]) return;
+    
+    if (field === 'cost' || field === 'intervalHours') {
+        printer.maintenanceTasks[taskIndex][field] = parseFloat(value) || 0;
+    } else {
+        printer.maintenanceTasks[taskIndex][field] = value;
+    }
+    
+    calculateQuote();
+    autoSave();
+}
+
+function removeMaintenanceTask(printerId, taskIndex) {
+    const printer = appData.printers.find(p => p.id === printerId);
+    if (!printer || !printer.maintenanceTasks) return;
+    
+    printer.maintenanceTasks.splice(taskIndex, 1);
+    renderPrinters();
+    calculateQuote();
+    autoSave();
 }
 
 // ============================================
@@ -1106,3 +1217,4 @@ function loadDefaultData() {
     renderAll();
     saveToLocalStorage();
 }
+

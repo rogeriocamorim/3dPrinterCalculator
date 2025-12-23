@@ -1293,3 +1293,80 @@ select option {
     font-size: 12px !important;
     color: var(--text-muted) !important;
 }
+
+/* Maintenance Tasks */
+.maintenance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.maintenance-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.maintenance-item .maintenance-name {
+    flex: 1;
+    min-width: 80px;
+}
+
+.maintenance-item .maintenance-cost {
+    width: 70px;
+    text-align: right;
+}
+
+.maintenance-item .maintenance-interval {
+    width: 60px;
+    text-align: right;
+}
+
+.maintenance-item .maintenance-separator {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.maintenance-item .maintenance-unit {
+    font-size: 11px;
+    color: var(--text-muted);
+    width: 12px;
+}
+
+.maintenance-item input {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.btn-delete-small {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-small:hover {
+    background: rgba(255, 68, 102, 0.1);
+    color: var(--danger);
+}
+
+.empty-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 8px 0;
+}
