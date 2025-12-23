@@ -106,9 +106,13 @@
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
                                     </svg>
-                                    Upload .3mf File
+                                    Upload .gcode.3mf File
                                 </label>
-                                <input type="file" id="gcode-upload" accept=".3mf" style="display: none;">
+                                <input type="file" id="gcode-upload" accept=".3mf,.gcode.3mf" style="display: none;">
+                                <div class="upload-help">
+                                    <p><strong>Note:</strong> Only <code>.gcode.3mf</code> files work.</p>
+                                    <p><strong>How to get it:</strong> In your slicer, click the arrow next to the print plate and select <strong>"Export Plate Slice File"</strong>.</p>
+                                </div>
                                 <div id="upload-status" class="upload-status"></div>
                             </div>
                         </section>

@@ -504,6 +504,40 @@ select option {
     height: 16px;
 }
 
+.upload-help {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.upload-help p {
+    margin: 0 0 8px 0;
+}
+
+.upload-help p:last-child {
+    margin-bottom: 0;
+}
+
+.upload-help strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.upload-help code {
+    background: var(--bg-card);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--border-color);
+}
+
 .upload-status {
     margin-top: 8px;
     font-size: 12px;

@@ -479,8 +479,27 @@ async function handle3mfUpload(event) {
     if (!file) return;
     
     const statusEl = document.getElementById('upload-status');
-    statusEl.textContent = 'Parsing file...';
-    statusEl.className = 'upload-status processing';
+    
+    // Validate file extension - only .gcode.3mf files work
+    if (!file.name.endsWith('.gcode.3mf') && !file.name.endsWith('.3mf')) {
+        statusEl.textContent = 'Error: Only .gcode.3mf files are supported. Please export from your slicer.';
+        statusEl.className = 'upload-status error';
+        setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+        }, 5000);
+        event.target.value = '';
+        return;
+    }
+    
+    // Warn if it's a regular .3mf file (not .gcode.3mf)
+    if (file.name.endsWith('.3mf') && !file.name.endsWith('.gcode.3mf')) {
+        statusEl.textContent = 'Warning: This appears to be a regular .3mf file. Only .gcode.3mf files contain print data.';
+        statusEl.className = 'upload-status error';
+    } else {
+        statusEl.textContent = 'Parsing file...';
+        statusEl.className = 'upload-status processing';
+    }
     
     try {
         // Check if JSZip is available
@@ -546,7 +565,7 @@ async function handle3mfUpload(event) {
         }
         
         if (!gcodeFile) {
-            throw new Error('G-code file not found in .3mf archive');
+            throw new Error('G-code file not found in .3mf archive. This file may not be a .gcode.3mf file. Please export "Plate Slice File" from your slicer.');
         }
         
         // Read G-code content
