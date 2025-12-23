@@ -1452,9 +1452,10 @@ select option {
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
+    text-align: center;
     gap: 8px;
 }
 
