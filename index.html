@@ -138,40 +138,44 @@
                             </button>
                         </section>
 
-                        <!-- Processing Time -->
-                        <section class="card collapsible">
-                            <h2 class="collapsible-header" data-target="processing-content">
+                        <!-- Labor / Processing Time -->
+                        <section class="card">
+                            <h2>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
                                 </svg>
-                                Processing Time
-                                <span class="collapse-icon">▼</span>
+                                Labor
                             </h2>
-                            <div id="processing-content" class="collapsible-content">
-                                <div class="processing-section">
-                                    <label class="section-label">Pre-processing</label>
-                                    <div class="time-grid small">
-                                        <div class="time-field">
-                                            <input type="number" id="pre-process-hours" min="0" value="0">
-                                            <label>Hours</label>
-                                        </div>
-                                        <div class="time-field">
-                                            <input type="number" id="pre-process-minutes" min="0" max="59" value="0">
-                                            <label>Min</label>
-                                        </div>
+                            <div class="form-group">
+                                <label>Labor Rate ($/hour)</label>
+                                <div class="input-with-prefix">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="labor-rate" value="20" min="0" step="0.5">
+                                </div>
+                            </div>
+                            <div class="processing-section">
+                                <label class="section-label">Pre-processing time</label>
+                                <div class="time-grid small">
+                                    <div class="time-field">
+                                        <input type="number" id="pre-process-hours" min="0" value="0">
+                                        <label>Hours</label>
+                                    </div>
+                                    <div class="time-field">
+                                        <input type="number" id="pre-process-minutes" min="0" max="59" value="0">
+                                        <label>Min</label>
                                     </div>
                                 </div>
-                                <div class="processing-section">
-                                    <label class="section-label">Post-processing</label>
-                                    <div class="time-grid small">
-                                        <div class="time-field">
-                                            <input type="number" id="post-process-hours" min="0" value="0">
-                                            <label>Hours</label>
-                                        </div>
-                                        <div class="time-field">
-                                            <input type="number" id="post-process-minutes" min="0" max="59" value="0">
-                                            <label>Min</label>
-                                        </div>
+                            </div>
+                            <div class="processing-section">
+                                <label class="section-label">Post-processing time</label>
+                                <div class="time-grid small">
+                                    <div class="time-field">
+                                        <input type="number" id="post-process-hours" min="0" value="0">
+                                        <label>Hours</label>
+                                    </div>
+                                    <div class="time-field">
+                                        <input type="number" id="post-process-minutes" min="0" max="59" value="0">
+                                        <label>Min</label>
                                     </div>
                                 </div>
                             </div>
@@ -280,12 +284,6 @@
                                 </div>
                                 <div class="result-math" id="material-math"></div>
                                 
-                                <!-- Extra Costs -->
-                                <div class="result-row">
-                                    <span class="result-label">Extra Costs</span>
-                                    <span class="result-value" id="extra-cost">$0.00</span>
-                                </div>
-                                
                                 <!-- Electricity -->
                                 <div class="result-row has-detail">
                                     <span class="result-label">
@@ -296,7 +294,7 @@
                                 </div>
                                 <div class="result-math" id="electricity-math"></div>
                                 
-                                <!-- Depreciation / Machine Cost -->
+                                <!-- Machine Cost -->
                                 <div class="result-row has-detail">
                                     <span class="result-label">
                                         <span class="expand-arrow">›</span>
@@ -305,6 +303,22 @@
                                     <span class="result-value" id="depreciation-cost">$0.00</span>
                                 </div>
                                 <div class="result-math" id="depreciation-math"></div>
+                                
+                                <!-- Labor Cost -->
+                                <div class="result-row has-detail">
+                                    <span class="result-label">
+                                        <span class="expand-arrow">›</span>
+                                        Labor Cost
+                                    </span>
+                                    <span class="result-value" id="labor-cost">$0.00</span>
+                                </div>
+                                <div class="result-math" id="labor-math"></div>
+                                
+                                <!-- Extra Costs -->
+                                <div class="result-row">
+                                    <span class="result-label">Extra Costs</span>
+                                    <span class="result-value" id="extra-cost">$0.00</span>
+                                </div>
                                 
                                 <!-- Total -->
                                 <div class="result-row total-row">

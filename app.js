@@ -591,8 +591,12 @@ function calculateQuote() {
         }
     }
 
+    // Calculate labor cost (processing time × labor rate)
+    const laborRate = parseFloat(document.getElementById('labor-rate')?.value) || 0;
+    const laborCost = processingTime * laborRate;
+
     // Total cost
-    const totalCost = materialCost + extraCost + electricityCost + depreciationCost;
+    const totalCost = materialCost + extraCost + electricityCost + depreciationCost + laborCost;
 
     // Calculate final price based on mode
     const pricingMode = document.querySelector('input[name="pricing-mode"]:checked').value;
@@ -623,6 +627,7 @@ function calculateQuote() {
     document.getElementById('extra-cost').textContent = formatCurrency(extraCost);
     document.getElementById('electricity-cost').textContent = formatCurrency(electricityCost);
     document.getElementById('depreciation-cost').textContent = formatCurrency(depreciationCost);
+    document.getElementById('labor-cost').textContent = formatCurrency(laborCost);
     document.getElementById('total-cost').textContent = formatCurrency(totalCost);
     document.getElementById('total-cost-mini').textContent = formatCurrency(totalCost);
     document.getElementById('final-price').textContent = formatCurrency(finalPrice);
@@ -631,10 +636,10 @@ function calculateQuote() {
     document.getElementById('total-time-display').textContent = formatTime(totalTime);
     
     // Update math breakdowns
-    updateMathBreakdowns(printer, printTime, materialCost, electricityCost, depreciationCost);
+    updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost);
 }
 
-function updateMathBreakdowns(printer, printTime, materialCost, electricityCost, depreciationCost) {
+function updateMathBreakdowns(printer, printTime, processingTime, laborRate, laborCost, materialCost, electricityCost, depreciationCost) {
     // Material Math
     let materialMath = '';
     document.querySelectorAll('#materials-list .crud-item').forEach(item => {
@@ -721,6 +726,30 @@ function updateMathBreakdowns(printer, printTime, materialCost, electricityCost,
         depreciationMath = '<div class="math-line"><span class="math-label">Select a printer</span></div>';
     }
     document.getElementById('depreciation-math').innerHTML = depreciationMath;
+    
+    // Labor Math
+    let laborMath = '';
+    if (processingTime > 0 && laborRate > 0) {
+        laborMath = `
+            <div class="math-line">
+                <span class="math-label">Processing Time</span>
+                <span class="math-value">${processingTime.toFixed(2)} hours</span>
+            </div>
+            <div class="math-line">
+                <span class="math-label">Labor Rate</span>
+                <span class="math-value">${formatCurrency(laborRate)}/hour</span>
+            </div>
+            <div class="math-line formula">
+                <span class="math-label">= ${processingTime.toFixed(2)}h × ${formatCurrency(laborRate)}</span>
+                <span class="math-value">${formatCurrency(laborCost)}</span>
+            </div>
+        `;
+    } else if (processingTime === 0) {
+        laborMath = '<div class="math-line"><span class="math-label">No processing time entered</span></div>';
+    } else {
+        laborMath = '<div class="math-line"><span class="math-label">Set labor rate above</span></div>';
+    }
+    document.getElementById('labor-math').innerHTML = laborMath;
 }
 
 function toggleMath(row) {
