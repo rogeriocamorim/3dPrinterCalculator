@@ -766,11 +766,28 @@ async function saveQuoteTo3mf(quoteData, arrayBuffer, fileName) {
     // Generate new .3mf file
     const blob = await zip.generateAsync({ type: 'blob' });
     
-    // Download the file
+    // Download the file with -withQuote suffix before extension
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName.replace('.3mf', '_quote.3mf') || 'quote.3mf';
+    
+    // Preserve the full extension (.gcode.3mf or .3mf) and add -withQuote before it
+    let downloadName;
+    if (fileName.endsWith('.gcode.3mf')) {
+        downloadName = fileName.replace('.gcode.3mf', '-withQuote.gcode.3mf');
+    } else if (fileName.endsWith('.3mf')) {
+        downloadName = fileName.replace('.3mf', '-withQuote.3mf');
+    } else {
+        // Fallback: add -withQuote before the last extension
+        const lastDot = fileName.lastIndexOf('.');
+        if (lastDot > 0) {
+            downloadName = fileName.slice(0, lastDot) + '-withQuote' + fileName.slice(lastDot);
+        } else {
+            downloadName = fileName + '-withQuote.3mf';
+        }
+    }
+    
+    a.download = downloadName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
