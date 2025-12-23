@@ -105,7 +105,7 @@ Simply open `index.html` in your browser. Note: The File System Access API (for 
    - On first load, you'll see a dialog asking to connect to a database
    - Click "Create New Database" to create a new JSON file
    - Or click "Open Existing File" to load existing data
-   - You can also click "Continue Without File" to use browser storage only
+   - **Note:** A file connection is required to use the application
 
 2. **Add Your Printer(s)**
    - Navigate to the "Printers" page

@@ -80,9 +80,8 @@ async function tryAutoConnect() {
     }
     
     // Always show the database connection modal on first load
-    // unless we're already connected (check localStorage flag)
-    const wasConnected = localStorage.getItem('3dPrintQuoteConnected');
-    if (!wasConnected) {
+    // unless we're already connected (file is loaded)
+    if (!isConnected) {
         // Show database connection modal immediately
         setTimeout(() => {
             showCreateDatabaseModal();
@@ -126,6 +125,12 @@ async function connectToDatabase() {
 }
 
 function showCreateDatabaseModal() {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('db-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
     // Create a modal for database options
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -137,34 +142,32 @@ function showCreateDatabaseModal() {
             <div class="modal-buttons">
                 <button class="btn-primary" id="create-new-db-btn">Create New Database</button>
                 <button class="btn-secondary" id="open-existing-db-btn">Open Existing File</button>
-                <button class="btn-cancel" id="cancel-db-btn">Continue Without File</button>
             </div>
-            <p class="modal-note">Without a file, data is stored in browser only.</p>
         </div>
     `;
     document.body.appendChild(modal);
     
     // Add event listeners
     document.getElementById('create-new-db-btn').addEventListener('click', async () => {
-        closeModal();
         await createNewDatabase();
+        // Only close modal if file was successfully created
+        if (isConnected) {
+            closeModal();
+        }
     });
     
     document.getElementById('open-existing-db-btn').addEventListener('click', async () => {
-        closeModal();
         await connectToDatabase();
+        // Only close modal if file was successfully connected
+        if (isConnected) {
+            closeModal();
+        }
     });
     
-    document.getElementById('cancel-db-btn').addEventListener('click', () => {
-        closeModal();
-        // Mark as "connected" to localStorage only so modal doesn't show again
-        localStorage.setItem('3dPrintQuoteConnected', 'localStorage');
-    });
-    
-    // Close on backdrop click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
+    // Prevent closing on backdrop click - user must select a file
+    // modal.addEventListener('click', (e) => {
+    //     if (e.target === modal) closeModal();
+    // });
 }
 
 function closeModal() {
@@ -189,9 +192,18 @@ async function createNewDatabase() {
             showNotification('Database created successfully!', 'success');
             
         } catch (error) {
-            if (error.name !== 'AbortError') {
+            if (error.name === 'AbortError') {
+                // User cancelled - show modal again
+                if (!isConnected && !document.getElementById('db-modal')) {
+                    showCreateDatabaseModal();
+                }
+            } else {
                 console.error('Error creating database:', error);
                 showNotification('Failed to create database file', 'error');
+                // Show modal again on error
+                if (!isConnected && !document.getElementById('db-modal')) {
+                    showCreateDatabaseModal();
+                }
             }
         }
     } else {
@@ -309,14 +321,19 @@ function setConnectionStatus(connected, mode = 'full') {
         statusEl.classList.add('connected');
         textEl.textContent = `Connected: ${fileHandle?.name || 'database.json'}`;
         btnEl.textContent = 'Connected';
-        // Remember that we've connected (won't show modal next time)
         localStorage.setItem('3dPrintQuoteConnected', 'true');
+        // Close modal if it's open
+        closeModal();
     } else {
         statusEl.classList.add('disconnected');
         textEl.textContent = mode === 'read-only' ? 'Read-only mode (no auto-save)' : 'No database connected';
         btnEl.textContent = 'Connect';
         // Clear the connected flag
         localStorage.removeItem('3dPrintQuoteConnected');
+        // Show modal again if disconnected
+        if (!document.getElementById('db-modal')) {
+            showCreateDatabaseModal();
+        }
     }
 }
 
