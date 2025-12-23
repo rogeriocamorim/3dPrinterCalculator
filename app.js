@@ -5,8 +5,12 @@
 
 // Application State
 let appData = {
-        printers: [],
-        filaments: []
+    printers: [],
+    filaments: [],
+    laborTasks: {
+        pre: [],   // Array of { name, hours, minutes, rate }
+        post: []
+    }
 };
 
 // Database (File) Connection State
@@ -418,9 +422,8 @@ function initializeQuotePage() {
     // Initial material row
     addQuoteMaterial();
     
-    // Initial labor tasks (one of each type as example)
-    addLaborTask('pre');
-    addLaborTask('post');
+    // Initialize labor tasks from saved data
+    initializeLaborTasks();
     
     // Initial calculation
     setTimeout(calculateQuote, 100);
@@ -430,29 +433,82 @@ function initializeQuotePage() {
 // Labor Tasks
 // ============================================
 
-function addLaborTask(type) {
-    const container = document.getElementById(`${type}-labor-list`);
-    const div = document.createElement('div');
-    div.className = 'labor-task-item';
-    div.innerHTML = `
-        <input type="text" class="labor-task-name" placeholder="${type === 'pre' ? 'Slicing, Modeling...' : 'Sanding, Painting...'}">
-        <input type="number" class="labor-task-hours" min="0" value="0" placeholder="0">
-        <span class="time-separator">h</span>
-        <input type="number" class="labor-task-minutes" min="0" max="59" value="0" placeholder="0">
-        <span class="time-separator">m</span>
-        <span class="rate-prefix">@</span>
-        <input type="number" class="labor-rate-input" min="0" step="0.5" value="20" placeholder="$/h">
-        <span class="time-separator">$/h</span>
-        <button class="btn-delete-small" onclick="removeLaborTask(this)">×</button>
-    `;
-    container.appendChild(div);
-    calculateQuote();
+function initializeLaborTasks() {
+    // Ensure laborTasks exists in appData
+    if (!appData.laborTasks) {
+        appData.laborTasks = { pre: [], post: [] };
+    }
+    
+    renderLaborTasks();
 }
 
-function removeLaborTask(btn) {
-    const item = btn.closest('.labor-task-item');
-    item.remove();
+function renderLaborTasks() {
+    ['pre', 'post'].forEach(type => {
+        const container = document.getElementById(`${type}-labor-list`);
+        if (!container) return;
+        
+        const tasks = appData.laborTasks?.[type] || [];
+        container.innerHTML = tasks.map((task, index) => `
+            <div class="labor-task-item" data-type="${type}" data-index="${index}">
+                <input type="text" class="labor-task-name" value="${escapeHtml(task.name || '')}" 
+                    placeholder="${type === 'pre' ? 'Slicing, Modeling...' : 'Sanding, Painting...'}"
+                    onchange="updateLaborTask('${type}', ${index}, 'name', this.value)">
+                <input type="number" class="labor-task-hours" min="0" value="${task.hours || 0}" placeholder="0"
+                    onchange="updateLaborTask('${type}', ${index}, 'hours', this.value)">
+                <span class="time-separator">h</span>
+                <input type="number" class="labor-task-minutes" min="0" max="59" value="${task.minutes || 0}" placeholder="0"
+                    onchange="updateLaborTask('${type}', ${index}, 'minutes', this.value)">
+                <span class="time-separator">m</span>
+                <span class="rate-prefix">@</span>
+                <input type="number" class="labor-rate-input" min="0" step="0.5" value="${task.rate || 20}" placeholder="$/h"
+                    onchange="updateLaborTask('${type}', ${index}, 'rate', this.value)">
+                <span class="time-separator">$/h</span>
+                <button class="btn-delete-small" onclick="removeLaborTask('${type}', ${index})">×</button>
+            </div>
+        `).join('');
+    });
+}
+
+function addLaborTask(type) {
+    if (!appData.laborTasks) {
+        appData.laborTasks = { pre: [], post: [] };
+    }
+    if (!appData.laborTasks[type]) {
+        appData.laborTasks[type] = [];
+    }
+    
+    appData.laborTasks[type].push({
+        name: '',
+        hours: 0,
+        minutes: 0,
+        rate: 20
+    });
+    
+    renderLaborTasks();
     calculateQuote();
+    autoSave();
+}
+
+function updateLaborTask(type, index, field, value) {
+    if (!appData.laborTasks?.[type]?.[index]) return;
+    
+    if (field === 'hours' || field === 'minutes' || field === 'rate') {
+        appData.laborTasks[type][index][field] = parseFloat(value) || 0;
+    } else {
+        appData.laborTasks[type][index][field] = value;
+    }
+    
+    calculateQuote();
+    autoSave();
+}
+
+function removeLaborTask(type, index) {
+    if (!appData.laborTasks?.[type]) return;
+    
+    appData.laborTasks[type].splice(index, 1);
+    renderLaborTasks();
+    calculateQuote();
+    autoSave();
 }
 
 function addQuoteMaterial() {
@@ -573,41 +629,31 @@ function calculateQuote() {
     const printMinutes = parseInt(document.getElementById('print-time-minutes').value) || 0;
     const printTime = (printDays * 24) + printHours + (printMinutes / 60);
     
-    // Get processing time and labor costs from tasks
+    // Get processing time and labor costs from saved tasks
     let processingTime = 0;
     let laborCost = 0;
-    const laborTasks = [];
+    const laborTasksCalc = [];
     
-    // Pre-processing tasks
-    document.querySelectorAll('#pre-labor-list .labor-task-item').forEach(item => {
-        const name = item.querySelector('.labor-task-name')?.value || 'Pre-processing';
-        const hours = parseFloat(item.querySelector('.labor-task-hours')?.value) || 0;
-        const minutes = parseFloat(item.querySelector('.labor-task-minutes')?.value) || 0;
-        const rate = parseFloat(item.querySelector('.labor-rate-input')?.value) || 0;
-        const time = hours + (minutes / 60);
-        const cost = time * rate;
-        
-        if (time > 0) {
-            processingTime += time;
-            laborCost += cost;
-            laborTasks.push({ name, time, rate, cost, type: 'pre' });
-        }
-    });
-    
-    // Post-processing tasks
-    document.querySelectorAll('#post-labor-list .labor-task-item').forEach(item => {
-        const name = item.querySelector('.labor-task-name')?.value || 'Post-processing';
-        const hours = parseFloat(item.querySelector('.labor-task-hours')?.value) || 0;
-        const minutes = parseFloat(item.querySelector('.labor-task-minutes')?.value) || 0;
-        const rate = parseFloat(item.querySelector('.labor-rate-input')?.value) || 0;
-        const time = hours + (minutes / 60);
-        const cost = time * rate;
-        
-        if (time > 0) {
-            processingTime += time;
-            laborCost += cost;
-            laborTasks.push({ name, time, rate, cost, type: 'post' });
-        }
+    // Process all labor tasks from appData
+    ['pre', 'post'].forEach(type => {
+        const tasks = appData.laborTasks?.[type] || [];
+        tasks.forEach(task => {
+            const time = (task.hours || 0) + ((task.minutes || 0) / 60);
+            const rate = task.rate || 0;
+            const cost = time * rate;
+            
+            if (time > 0 || rate > 0) {
+                processingTime += time;
+                laborCost += cost;
+                laborTasksCalc.push({ 
+                    name: task.name || (type === 'pre' ? 'Pre-processing' : 'Post-processing'), 
+                    time, 
+                    rate, 
+                    cost, 
+                    type 
+                });
+            }
+        });
     });
     
     const totalTime = printTime + processingTime;
@@ -709,7 +755,7 @@ function calculateQuote() {
     document.getElementById('total-time-display').textContent = formatTime(totalTime);
     
     // Update math breakdowns
-    updateMathBreakdowns(printer, printTime, laborTasks, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost);
+    updateMathBreakdowns(printer, printTime, laborTasksCalc, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost);
 }
 
 function updateMathBreakdowns(printer, printTime, laborTasks, laborCost, materialCost, electricityCost, depreciationCost, maintenanceCost) {
@@ -1211,10 +1257,13 @@ function debounce(func, wait) {
 }
 
 function updateIdCounters() {
-    // Ensure all printers have IDs
+    // Ensure all printers have IDs and maintenanceTasks array
     appData.printers.forEach((printer, index) => {
         if (!printer.id) {
             printer.id = `printer-${index + 1}`;
+        }
+        if (!printer.maintenanceTasks) {
+            printer.maintenanceTasks = [];
         }
     });
     
@@ -1224,6 +1273,13 @@ function updateIdCounters() {
             filament.id = `filament-${index + 1}`;
         }
     });
+    
+    // Ensure laborTasks exists
+    if (!appData.laborTasks) {
+        appData.laborTasks = { pre: [], post: [] };
+    }
+    if (!appData.laborTasks.pre) appData.laborTasks.pre = [];
+    if (!appData.laborTasks.post) appData.laborTasks.post = [];
     
     // Update printer ID counter
     const maxPrinterId = Math.max(0, ...appData.printers.map(p => {
@@ -1241,32 +1297,38 @@ function updateIdCounters() {
 }
 
 function renderAll() {
-            renderPrinters();
-            renderFilaments();
-            updatePrinterSelect();
-            updateMaterialSelects();
+    renderPrinters();
+    renderFilaments();
+    renderLaborTasks();
+    updatePrinterSelect();
+    updateMaterialSelects();
     // Delay calculation to ensure DOM is updated
     setTimeout(calculateQuote, 50);
 }
 
 function loadDefaultData() {
-        appData = {
-            printers: [
-                {
-                    id: 'printer-1',
-                    name: 'Ender 3 Pro',
-                    kwPerHour: 0.22,
-                    costPerKwh: 0.12,
-                    cost: 200,
-                    expectedLifetimeHours: 5000,
-                    includeDepreciation: true
-                }
-            ],
-            filaments: [
+    appData = {
+        printers: [
+            {
+                id: 'printer-1',
+                name: 'Ender 3 Pro',
+                kwPerHour: 0.22,
+                costPerKwh: 0.12,
+                cost: 200,
+                expectedLifetimeHours: 5000,
+                includeDepreciation: true,
+                maintenanceTasks: []
+            }
+        ],
+        filaments: [
             { id: 'filament-1', name: 'PLA', pricePerKg: 20.00 },
             { id: 'filament-2', name: 'ABS', pricePerKg: 25.00 },
             { id: 'filament-3', name: 'PETG', pricePerKg: 28.00 }
-        ]
+        ],
+        laborTasks: {
+            pre: [],
+            post: []
+        }
     };
     
     printerIdCounter = 2;
