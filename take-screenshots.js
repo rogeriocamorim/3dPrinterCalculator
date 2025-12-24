@@ -95,7 +95,7 @@ async function takeScreenshots() {
         // Clear connected flag and show modal
         await page.evaluate(() => {
             localStorage.removeItem('3dPrintQuoteConnected');
-            // Create modal manually
+            // Create modal manually (updated to match current UI)
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.id = 'db-modal';
@@ -106,9 +106,7 @@ async function takeScreenshots() {
                     <div class="modal-buttons">
                         <button class="btn-primary" id="create-new-db-btn">Create New Database</button>
                         <button class="btn-secondary" id="open-existing-db-btn">Open Existing File</button>
-                        <button class="btn-cancel" id="cancel-db-btn">Continue Without File</button>
                     </div>
-                    <p class="modal-note">Without a file, data is stored in browser only.</p>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -120,6 +118,23 @@ async function takeScreenshots() {
             fullPage: false 
         });
         console.log('   ✓ database-modal.png');
+
+        // 5. Tutorial page
+        console.log('📸 Taking screenshot: Tutorial...');
+        await page.evaluate(() => {
+            const modal = document.getElementById('db-modal');
+            if (modal) modal.remove();
+        });
+        await page.click('[data-page="tutorial"]');
+        await new Promise(r => setTimeout(r, 500));
+        // Scroll to top
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await new Promise(r => setTimeout(r, 300));
+        await page.screenshot({ 
+            path: path.join(SCREENSHOTS_DIR, 'tutorial.png'),
+            fullPage: false 
+        });
+        console.log('   ✓ tutorial.png');
 
         console.log('\n✅ All screenshots saved to ./screenshots/');
         
