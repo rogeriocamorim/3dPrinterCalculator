@@ -67,20 +67,22 @@ Then open `http://localhost:8000` in your browser.
 
 When you first open the application, you'll see a **Database Connection** modal. **A file connection is required** to use the application.
 
+> 💡 **What is this file?** The database file is simply a local file on your computer that saves your printer and material information. This way, you don't need to type in all your printer settings (power consumption, electricity rates, maintenance schedules) and material prices every time you use the app - they're saved and loaded automatically!
+
 You have two options:
 
 #### Create New Database
 1. Click **"Create New Database"**
-2. Choose a location to save your `3d-print-database.json` file
+2. Choose a location on your computer to save your `3d-print-database.json` file
 3. The file will be created and connected automatically
-4. Your data will auto-save to this file
+4. Your printer and material data will auto-save to this file as you add or edit them
 
 #### Open Existing File
 1. Click **"Open Existing File"**
 2. Select your existing `3d-print-database.json` file
-3. Your previous data will be loaded
+3. Your previously saved printer and material information will be loaded
 
-**Important:** The modal will persist until you successfully connect a file. This ensures your data is always saved.
+**Important:** The modal will persist until you successfully connect a file. This ensures your data is always saved. Once connected, all your printers and materials will be saved automatically as you work.
 
 ### 2. Initial Data
 
