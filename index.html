@@ -409,228 +409,333 @@
 
             <!-- Tutorial Page -->
             <div id="tutorial-page" class="page">
-                <div class="page-header">
-                    <h1>Tutorial</h1>
-                    <p class="page-subtitle">Complete guide to using the 3D Print Quote Generator</p>
+                <!-- Hero Section -->
+                <div class="tutorial-hero">
+                    <div class="tutorial-hero-content">
+                        <h1>Getting Started</h1>
+                        <p>Learn how to calculate accurate 3D printing costs in minutes</p>
+                    </div>
+                    <div class="tutorial-quick-nav">
+                        <a href="#tut-setup" class="quick-nav-item">
+                            <span class="quick-nav-number">1</span>
+                            <span class="quick-nav-label">Setup</span>
+                        </a>
+                        <a href="#tut-printers" class="quick-nav-item">
+                            <span class="quick-nav-number">2</span>
+                            <span class="quick-nav-label">Printers</span>
+                        </a>
+                        <a href="#tut-materials" class="quick-nav-item">
+                            <span class="quick-nav-number">3</span>
+                            <span class="quick-nav-label">Materials</span>
+                        </a>
+                        <a href="#tut-quote" class="quick-nav-item">
+                            <span class="quick-nav-number">4</span>
+                            <span class="quick-nav-label">Create Quote</span>
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="tutorial-content">
-                    <!-- Getting Started -->
-                    <section class="tutorial-section">
-                        <h2>🚀 Getting Started</h2>
-                        <div class="tutorial-step">
-                            <h3>1. Database Connection</h3>
-                            <p>When you first open the app, you'll see a database connection modal. A file connection is required to use the application.</p>
-                            <img src="screenshots/database-modal.png" alt="Database Connection Modal" class="tutorial-image">
-                            <p class="tutorial-note">💡 <strong>What is this file?</strong> The database file is simply a local file on your computer that saves your printer and material information. This way, you don't need to type in all your printer settings and material prices every time you use the app - they're saved and loaded automatically!</p>
-                            <p><strong>Options:</strong></p>
-                            <ul>
-                                <li><strong>Create New Database:</strong> Creates a new JSON file on your computer to store your printer and material data locally</li>
-                                <li><strong>Open Existing File:</strong> Load your previously saved printer and material information from an existing file</li>
-                            </ul>
-                            <p class="tutorial-tip">💡 The modal will persist until you successfully connect a file to ensure your data is always saved. Once connected, all your printers and materials will be saved automatically as you add or edit them.</p>
+                    <!-- Step 1: Setup -->
+                    <section id="tut-setup" class="tutorial-card">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge">1</div>
+                            <div class="tutorial-card-title">
+                                <h2>Initial Setup</h2>
+                                <p>Connect your database file</p>
+                            </div>
                         </div>
-                    </section>
-
-                    <!-- Printer Management -->
-                    <section class="tutorial-section">
-                        <h2>🖨️ Printer Management</h2>
-                        <div class="tutorial-step">
-                            <h3>Adding a Printer</h3>
-                            <p>Navigate to the <strong>Printers</strong> page and click "Add Printer". Fill in your printer details:</p>
-                            <img src="screenshots/printers.png" alt="Printer Management" class="tutorial-image">
-                            <div class="tutorial-details">
-                                <h4>Basic Settings:</h4>
-                                <ul>
-                                    <li><strong>Name:</strong> Give your printer a descriptive name</li>
-                                    <li><strong>Power (kW):</strong> Power consumption (e.g., 0.22 kW for desktop printers)</li>
-                                    <li><strong>Cost per kWh:</strong> Your electricity rate (check your utility bill)</li>
-                                </ul>
-                                <h4>Machine Cost:</h4>
-                                <ul>
-                                    <li><strong>Cost ($):</strong> Purchase price of your printer</li>
-                                    <li><strong>Lifetime (hrs):</strong> Expected operating hours (e.g., 5000 hours)</li>
-                                </ul>
-                                <h4>Scheduled Maintenance:</h4>
-                                <p>Click "Add Maintenance Task" to set up periodic maintenance:</p>
-                                <ul>
-                                    <li><strong>Task Name:</strong> Description (e.g., "Grease & Oil")</li>
-                                    <li><strong>Cost ($):</strong> Cost of the maintenance</li>
-                                    <li><strong>Interval (hrs):</strong> How often needed (e.g., every 3000 hours)</li>
-                                </ul>
-                                <p class="tutorial-example">Example: After 3000 hours, perform Grease & Oil maintenance for $20</p>
+                        <div class="tutorial-card-body">
+                            <div class="tutorial-grid">
+                                <div class="tutorial-text">
+                                    <p>When you first open the app, you'll see a connection modal. Choose one option:</p>
+                                    <div class="tutorial-options">
+                                        <div class="tutorial-option">
+                                            <div class="option-icon primary">+</div>
+                                            <div class="option-content">
+                                                <strong>Create New Database</strong>
+                                                <span>Start fresh with a new file</span>
+                                            </div>
+                                        </div>
+                                        <div class="tutorial-option">
+                                            <div class="option-icon secondary">📂</div>
+                                            <div class="option-content">
+                                                <strong>Open Existing File</strong>
+                                                <span>Load your saved data</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tutorial-callout info">
+                                        <div class="callout-icon">💡</div>
+                                        <div class="callout-content">
+                                            <strong>What's the database file?</strong>
+                                            <p>A simple JSON file on your computer that stores your printer and material settings. Your data is saved automatically so you don't have to re-enter it every time!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tutorial-media">
+                                    <img src="screenshots/database-modal.png" alt="Database Connection Modal">
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Material Management -->
-                    <section class="tutorial-section">
-                        <h2>🧵 Material Management</h2>
-                        <div class="tutorial-step">
-                            <h3>Adding Materials</h3>
-                            <p>Navigate to the <strong>Materials</strong> page and click "Add Material":</p>
-                            <img src="screenshots/materials.png" alt="Material Management" class="tutorial-image">
-                            <div class="tutorial-details">
-                                <ul>
-                                    <li><strong>Name:</strong> Material type (PLA, ABS, PETG, etc.)</li>
-                                    <li><strong>Price per kg:</strong> Cost per kilogram (include shipping if buying online)</li>
-                                </ul>
-                                <p class="tutorial-example">Example: PLA at $30/kg, ABS at $35/kg</p>
+                    <!-- Step 2: Printers -->
+                    <section id="tut-printers" class="tutorial-card">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge">2</div>
+                            <div class="tutorial-card-title">
+                                <h2>Add Your Printers</h2>
+                                <p>Configure printer settings and costs</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="tutorial-grid reverse">
+                                <div class="tutorial-media">
+                                    <img src="screenshots/printers.png" alt="Printer Management">
+                                </div>
+                                <div class="tutorial-text">
+                                    <p>Go to <strong>Printers</strong> → Click <strong>Add Printer</strong></p>
+                                    
+                                    <div class="tutorial-fields">
+                                        <div class="field-group">
+                                            <h4>⚡ Power Settings</h4>
+                                            <div class="field-item"><code>Power (kW)</code> — Printer consumption (e.g., 0.22)</div>
+                                            <div class="field-item"><code>Cost/kWh</code> — Your electricity rate</div>
+                                        </div>
+                                        <div class="field-group">
+                                            <h4>💰 Machine Cost</h4>
+                                            <div class="field-item"><code>Cost ($)</code> — Purchase price</div>
+                                            <div class="field-item"><code>Lifetime (hrs)</code> — Expected operating hours</div>
+                                        </div>
+                                        <div class="field-group">
+                                            <h4>🔧 Maintenance</h4>
+                                            <p class="field-desc">Add recurring maintenance tasks with cost and interval</p>
+                                            <div class="field-example">Example: "Belt Change" — $15 every 5000 hours</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Quote Calculator -->
-                    <section class="tutorial-section">
-                        <h2>📊 Creating Quotes</h2>
-                        <div class="tutorial-step">
-                            <h3>Step-by-Step Quote Creation</h3>
-                            <img src="screenshots/quote-calculator.png" alt="Quote Calculator" class="tutorial-image">
+                    <!-- Step 3: Materials -->
+                    <section id="tut-materials" class="tutorial-card">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge">3</div>
+                            <div class="tutorial-card-title">
+                                <h2>Add Materials</h2>
+                                <p>Set up your filament library</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="tutorial-grid">
+                                <div class="tutorial-text">
+                                    <p>Go to <strong>Materials</strong> → Click <strong>Add Material</strong></p>
+                                    
+                                    <div class="tutorial-fields simple">
+                                        <div class="field-item"><code>Name</code> — Material type (PLA, ABS, PETG...)</div>
+                                        <div class="field-item"><code>Price/kg</code> — Cost per kilogram</div>
+                                    </div>
+
+                                    <div class="tutorial-callout tip">
+                                        <div class="callout-icon">💡</div>
+                                        <div class="callout-content">
+                                            <strong>Pro Tip</strong>
+                                            <p>Include shipping costs in your price per kg for more accurate quotes!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tutorial-media">
+                                    <img src="screenshots/materials.png" alt="Material Management">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Step 4: Create Quote -->
+                    <section id="tut-quote" class="tutorial-card featured">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge">4</div>
+                            <div class="tutorial-card-title">
+                                <h2>Create a Quote</h2>
+                                <p>Calculate your print job cost</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="tutorial-media full-width">
+                                <img src="screenshots/quote-calculator.png" alt="Quote Calculator">
+                            </div>
                             
-                            <h4>Step 1: Select Printer</h4>
-                            <p>Choose the printer you'll use for this job from the dropdown.</p>
-
-                            <h4>Step 2: Enter Print Time</h4>
-                            <p>Enter the estimated print time in days, hours, and minutes.</p>
-                            <p class="tutorial-tip">💡 <strong>Tip:</strong> You can upload a .gcode.3mf file to auto-fill this (see below)</p>
-
-                            <h4>Step 3: Add Materials</h4>
-                            <p>Click "Add Material" and:</p>
-                            <ul>
-                                <li>Select the material from the dropdown</li>
-                                <li>Enter the quantity in <strong>grams</strong> (the "g" suffix is shown automatically)</li>
-                            </ul>
-                            <p class="tutorial-example">For multi-color prints, add multiple material rows - one for each color!</p>
-
-                            <h4>Step 4: Add Labor Tasks</h4>
-                            <div class="tutorial-details">
-                                <p><strong>Pre-Processing:</strong> Tasks like slicing, modeling, file preparation</p>
-                                <p><strong>Post-Processing:</strong> Tasks like sanding, painting, assembly</p>
-                                <p>For each task, enter:</p>
-                                <ul>
-                                    <li>Task name (e.g., "Slicing", "Sanding")</li>
-                                    <li>Time (hours and minutes)</li>
-                                    <li>Hourly rate ($/h)</li>
-                                </ul>
-                                <p class="tutorial-example">Example: Slicing - 5 minutes @ $10/hour, Modeling - 1 hour @ $50/hour</p>
+                            <div class="tutorial-steps-list">
+                                <div class="mini-step">
+                                    <span class="mini-step-num">A</span>
+                                    <div class="mini-step-content">
+                                        <strong>Select Printer</strong>
+                                        <p>Choose from your configured printers</p>
+                                    </div>
+                                </div>
+                                <div class="mini-step">
+                                    <span class="mini-step-num">B</span>
+                                    <div class="mini-step-content">
+                                        <strong>Enter Print Time</strong>
+                                        <p>Days, hours, minutes — or upload a .gcode.3mf file</p>
+                                    </div>
+                                </div>
+                                <div class="mini-step">
+                                    <span class="mini-step-num">C</span>
+                                    <div class="mini-step-content">
+                                        <strong>Add Materials</strong>
+                                        <p>Select material and enter weight in grams</p>
+                                    </div>
+                                </div>
+                                <div class="mini-step">
+                                    <span class="mini-step-num">D</span>
+                                    <div class="mini-step-content">
+                                        <strong>Add Labor (Optional)</strong>
+                                        <p>Pre/post-processing time × hourly rate</p>
+                                    </div>
+                                </div>
+                                <div class="mini-step">
+                                    <span class="mini-step-num">E</span>
+                                    <div class="mini-step-content">
+                                        <strong>Set Pricing Mode</strong>
+                                        <p>Profit margin %, hourly rate, or fixed price</p>
+                                    </div>
+                                </div>
                             </div>
-
-                            <h4>Step 5: Choose Pricing Mode</h4>
-                            <div class="tutorial-details">
-                                <p><strong>Profit Margin (%):</strong> Add a percentage markup to your costs (recommended)</p>
-                                <p><strong>Hourly Rate:</strong> Set a fixed price per print hour</p>
-                                <p><strong>Fixed Price:</strong> Manually set the final price</p>
-                            </div>
-
-                            <h4>Viewing the Quote</h4>
-                            <p>The <strong>Quote Summary</strong> panel shows your final price. Click "Cost Breakdown" to see detailed calculations for each cost component.</p>
                         </div>
                     </section>
 
-                    <!-- Uploading Files -->
-                    <section class="tutorial-section">
-                        <h2>📁 Uploading .gcode.3mf Files</h2>
-                        <div class="tutorial-step">
-                            <h3>How to Get .gcode.3mf Files</h3>
-                            <p>In your slicer (Bambu Studio, PrusaSlicer, etc.):</p>
-                            <ol>
-                                <li>Prepare your print and slice it</li>
-                                <li>Look for the <strong>print plate</strong> area</li>
-                                <li>Click the <strong>arrow/dropdown</strong> next to the print plate</li>
-                                <li>Select <strong>"Export Plate Slice File"</strong> or <strong>"Export .gcode.3mf"</strong></li>
-                                <li>Save the file</li>
-                            </ol>
-                            <p class="tutorial-warning">⚠️ <strong>Important:</strong> Only .gcode.3mf files work (not regular .3mf files). These contain the actual G-code with print time and material usage data.</p>
+                    <!-- Advanced Section -->
+                    <div class="tutorial-section-divider">
+                        <span>Advanced Features</span>
+                    </div>
 
-                            <h3>Uploading the File</h3>
-                            <ol>
-                                <li>In the <strong>Print Time</strong> section, click "Upload .gcode.3mf File"</li>
-                                <li>Select your .gcode.3mf file</li>
-                                <li>The app will automatically:
-                                    <ul>
-                                        <li>Extract print time and convert to days/hours/minutes</li>
-                                        <li>Extract material usage (weight in grams) for each color</li>
-                                        <li>Create material entries for each filament used</li>
-                                    </ul>
-                                </li>
-                            </ol>
-                            <p class="tutorial-note">💡 You'll still need to select the appropriate material types and add any labor tasks or extra costs.</p>
+                    <!-- Upload Files -->
+                    <section class="tutorial-card compact">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge mini">📁</div>
+                            <div class="tutorial-card-title">
+                                <h2>Upload .gcode.3mf Files</h2>
+                                <p>Auto-fill print time and material usage</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="two-column">
+                                <div class="column">
+                                    <h4>How to Export</h4>
+                                    <ol class="numbered-list">
+                                        <li>Slice your model in Bambu Studio / PrusaSlicer</li>
+                                        <li>Click the arrow next to the print plate</li>
+                                        <li>Select <strong>"Export Plate Slice File"</strong></li>
+                                    </ol>
+                                </div>
+                                <div class="column">
+                                    <h4>Then in this App</h4>
+                                    <ol class="numbered-list">
+                                        <li>Click <strong>"Upload .gcode.3mf File"</strong></li>
+                                        <li>Select your exported file</li>
+                                        <li>Time & materials are filled automatically!</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="tutorial-callout warning">
+                                <div class="callout-icon">⚠️</div>
+                                <div class="callout-content">
+                                    <strong>Important:</strong> Only <code>.gcode.3mf</code> files work — not regular <code>.3mf</code> files.
+                                </div>
+                            </div>
                         </div>
                     </section>
 
-                    <!-- Saving and Loading -->
-                    <section class="tutorial-section">
-                        <h2>💾 Saving and Loading Quotes</h2>
-                        <div class="tutorial-step">
-                            <h3>Saving a Quote</h3>
-                            <p>After filling in all your quote details, click the <strong>"Save Quote"</strong> button.</p>
-                            
-                            <h4>If you uploaded a .gcode.3mf file:</h4>
-                            <ul>
-                                <li>The quote data will be <strong>embedded</strong> in the .gcode.3mf file</li>
-                                <li>A new file will be downloaded: <code>filename-withQuote.gcode.3mf</code></li>
-                                <li>This file contains both the G-code AND your quote data</li>
-                                <li>Perfect for sharing with clients or keeping records</li>
-                            </ul>
-
-                            <h4>If no .gcode.3mf file was uploaded:</h4>
-                            <ul>
-                                <li>The quote will be saved as a <strong>JSON file</strong></li>
-                                <li>Filename: <code>quote_YYYY-MM-DDTHH-MM-SS.json</code></li>
-                                <li>You can load this later to restore the quote</li>
-                            </ul>
-
-                            <h3>Loading a Saved Quote</h3>
-                            <ol>
-                                <li>Click the <strong>"Load Quote"</strong> button</li>
-                                <li>Select either:
-                                    <ul>
-                                        <li>A .gcode.3mf file with embedded quote data</li>
+                    <!-- Save & Load -->
+                    <section class="tutorial-card compact">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge mini">💾</div>
+                            <div class="tutorial-card-title">
+                                <h2>Save & Load Quotes</h2>
+                                <p>Keep records and share with clients</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="two-column">
+                                <div class="column">
+                                    <h4>Save Quote</h4>
+                                    <p><strong>With .gcode.3mf uploaded:</strong><br>Quote is embedded in the file → downloads as <code>*-withQuote.gcode.3mf</code></p>
+                                    <p><strong>Without file:</strong><br>Saved as JSON file</p>
+                                </div>
+                                <div class="column">
+                                    <h4>Load Quote</h4>
+                                    <p>Click "Load Quote" and select:</p>
+                                    <ul class="simple-list">
+                                        <li>A .gcode.3mf with embedded quote</li>
                                         <li>A .json quote file</li>
                                     </ul>
-                                </li>
-                            </ol>
-                            <p>The app will restore all your settings: printer, print time, materials, labor tasks, and pricing mode.</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
-                    <!-- Tips -->
-                    <section class="tutorial-section">
-                        <h2>💡 Tips and Best Practices</h2>
-                        <div class="tutorial-step">
-                            <h3>Accurate Cost Calculation</h3>
-                            <ul>
-                                <li><strong>Measure Actual Power:</strong> Use a power meter to measure your printer's actual consumption</li>
-                                <li><strong>Track Material Usage:</strong> Weigh spools before/after prints or use .gcode.3mf upload for accuracy</li>
-                                <li><strong>Set Realistic Lifetime:</strong> Consider your printer's expected lifespan and maintenance needs</li>
-                                <li><strong>Document Maintenance:</strong> Keep receipts and track maintenance intervals</li>
-                            </ul>
-
-                            <h3>Pricing Strategy</h3>
-                            <ul>
-                                <li><strong>Start with Profit Margin:</strong> Begin with 20-30% margin and adjust based on market</li>
-                                <li><strong>Use Hourly Rate for Complex Jobs:</strong> When labor is the main cost driver</li>
-                                <li><strong>Factor in Overhead:</strong> Use "Extra Costs" for business expenses</li>
-                            </ul>
-
-                            <h3>File Management</h3>
-                            <ul>
-                                <li><strong>Backup Your Database:</strong> Keep your database.json file safe and backed up</li>
-                                <li><strong>Organize Saved Quotes:</strong> Use descriptive filenames and keep a folder for client quotes</li>
-                                <li><strong>Use .gcode.3mf Files:</strong> Always export from your slicer and embed quotes for complete records</li>
-                            </ul>
+                    <!-- Tips Section -->
+                    <section class="tutorial-card tips">
+                        <div class="tutorial-card-header">
+                            <div class="tutorial-step-badge mini">💡</div>
+                            <div class="tutorial-card-title">
+                                <h2>Pro Tips</h2>
+                                <p>Get the most accurate quotes</p>
+                            </div>
+                        </div>
+                        <div class="tutorial-card-body">
+                            <div class="tips-grid">
+                                <div class="tip-item">
+                                    <div class="tip-icon">⚡</div>
+                                    <div class="tip-content">
+                                        <strong>Measure Real Power</strong>
+                                        <p>Use a power meter for accurate consumption data</p>
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <div class="tip-icon">📊</div>
+                                    <div class="tip-content">
+                                        <strong>Start with 20-30% Margin</strong>
+                                        <p>Adjust based on market and complexity</p>
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <div class="tip-icon">💾</div>
+                                    <div class="tip-content">
+                                        <strong>Backup Your Database</strong>
+                                        <p>Keep your JSON file safe and backed up</p>
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <div class="tip-icon">📁</div>
+                                    <div class="tip-content">
+                                        <strong>Use .gcode.3mf Files</strong>
+                                        <p>Most accurate time and material data</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
-                    <!-- Support -->
-                    <section class="tutorial-section">
-                        <h2>🆘 Need Help?</h2>
-                        <div class="tutorial-step">
-                            <p>If you encounter any issues or have questions:</p>
-                            <ul>
-                                <li>🐛 <a href="https://github.com/rogeriocamorim/3dPrinterCalculator/issues" target="_blank">Report Issues on GitHub</a></li>
-                                <li>💰 <a href="https://github.com/sponsors/rogeriocamorim" target="_blank">Support the Project</a></li>
-                            </ul>
+                    <!-- Help Section -->
+                    <section class="tutorial-help">
+                        <h3>Need Help?</h3>
+                        <div class="help-links">
+                            <a href="https://github.com/rogeriocamorim/3dPrinterCalculator/issues" target="_blank" class="help-link">
+                                <span class="help-icon">🐛</span>
+                                <span>Report an Issue</span>
+                            </a>
+                            <a href="https://github.com/sponsors/rogeriocamorim" target="_blank" class="help-link">
+                                <span class="help-icon">❤️</span>
+                                <span>Support the Project</span>
+                            </a>
+                            <a href="https://ko-fi.com/rogeriocamorim" target="_blank" class="help-link">
+                                <span class="help-icon">☕</span>
+                                <span>Buy me a Coffee</span>
+                            </a>
                         </div>
                     </section>
                 </div>
