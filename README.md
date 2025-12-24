@@ -230,7 +230,7 @@ See [LICENSE](LICENSE) file for full terms.
 ## Contributing
 
 Contributions are welcome! Please feel free to:
-- 🐛 [Open an Issue](https://github.com/rogeriocamorim/3dPrinterCalculator/issues) to report bugs or suggest features
+- 🐛 **[Report Issues](https://github.com/rogeriocamorim/3dPrinterCalculator/issues)** - Found a bug or have a feature request? [Open an issue here](https://github.com/rogeriocamorim/3dPrinterCalculator/issues)
 - 🔧 [Submit a Pull Request](https://github.com/rogeriocamorim/3dPrinterCalculator/pulls) with improvements
 
 By submitting a PR, you agree that your contributions will be licensed under the same proprietary terms.
@@ -240,6 +240,7 @@ By submitting a PR, you agree that your contributions will be licensed under the
 If you find this tool useful, please consider sponsoring the project! Your support helps maintain and improve this application.
 
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-181717?logo=github&logoColor=white&style=for-the-badge)](https://github.com/sponsors/rogeriocamorim)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?logo=ko-fi&logoColor=white&style=for-the-badge)](https://ko-fi.com/rogeriocamorim)
 
 ---
 
