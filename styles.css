@@ -216,12 +216,42 @@ body {
 .sidebar-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .version {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
     color: var(--text-muted);
+}
+
+.sponsor-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #ea4aaa 0%, #c93a82 100%);
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: var(--transition);
+    justify-content: center;
+}
+
+.sponsor-link:hover {
+    background: linear-gradient(135deg, #f05fb8 0%, #d84a92 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 74, 170, 0.3);
+}
+
+.sponsor-link svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
 }
 
 /* Main Content */

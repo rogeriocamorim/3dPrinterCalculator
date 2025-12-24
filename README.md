@@ -3,7 +3,7 @@
 A modern, dark-themed web application for calculating accurate 3D printing job quotes. This tool helps 3D printing businesses and hobbyists calculate the true cost of their prints, including materials, electricity, machine depreciation, maintenance, and more.
 
 ![Version](https://img.shields.io/badge/version-2.0-00d4aa)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![License](https://img.shields.io/badge/license-Proprietary-red)
 ![Platform](https://img.shields.io/badge/platform-Web-lightgrey)
 
 ## Screenshots
@@ -213,11 +213,33 @@ The app stores data in a JSON file with this structure:
 
 ## License
 
-This project is open source and available for personal and commercial use.
+This project is **proprietary software**. All rights reserved.
+
+**Restrictions:**
+- You may NOT distribute, copy, modify, or create derivative works
+- You may NOT use for commercial purposes without explicit permission
+
+**Permitted Uses:**
+- View and study the source code for learning purposes
+- Submit Pull Requests (PRs) to contribute improvements
+- Open Issues to report bugs or suggest features
+- Fork for personal use only (not for distribution)
+
+See [LICENSE](LICENSE) file for full terms.
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests!
+Contributions are welcome! Please feel free to:
+- 🐛 [Open an Issue](https://github.com/rogeriocamorim/3dPrinterCalculator/issues) to report bugs or suggest features
+- 🔧 [Submit a Pull Request](https://github.com/rogeriocamorim/3dPrinterCalculator/pulls) with improvements
+
+By submitting a PR, you agree that your contributions will be licensed under the same proprietary terms.
+
+## Sponsors
+
+If you find this tool useful, please consider sponsoring the project! Your support helps maintain and improve this application.
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-181717?logo=github&logoColor=white&style=for-the-badge)](https://github.com/sponsors/rogeriocamorim)
 
 ---
 
