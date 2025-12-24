@@ -138,8 +138,9 @@ function showCreateDatabaseModal() {
     modal.innerHTML = `
         <div class="modal-content">
             <h3>📁 Local Storage File</h3>
-            <p class="modal-description">This app uses a <strong>local JSON file</strong> to save your printer and material settings on your computer. This is not a cloud database — your data stays private and local.</p>
+            <p class="modal-description">This app uses a <strong>local JSON file (.json)</strong> to save your printer and material settings on your computer. This is not a cloud database — your data stays private and local.</p>
             <p class="modal-benefit">💡 Once connected, you won't need to re-enter your printer specs and material prices every time!</p>
+            <p class="modal-note">⚠️ This is <strong>not</strong> a .3mf or .gcode.3mf file. Saved quotes (.gcode.3mf) can be loaded later using the "Load Quote" button.</p>
             <div class="modal-buttons">
                 <button class="btn-primary" id="create-new-db-btn">Create New File</button>
                 <button class="btn-secondary" id="open-existing-db-btn">Open Existing File</button>

@@ -1511,6 +1511,16 @@ select option {
     padding: 12px 16px;
     font-size: 13px;
     color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.modal-content .modal-note {
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid rgba(255, 170, 0, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
     margin-bottom: 24px;
 }
 
