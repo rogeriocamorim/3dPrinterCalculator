@@ -125,8 +125,10 @@ body {
 /* App Container */
 .app-container {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
     padding-top: 40px;
+    position: relative;
 }
 
 /* Sidebar */
@@ -252,6 +254,15 @@ body {
     width: 16px;
     height: 16px;
     fill: currentColor;
+}
+
+.sponsor-link.kofi-link {
+    background: linear-gradient(135deg, #ff5e5e 0%, #f16061 100%);
+}
+
+.sponsor-link.kofi-link:hover {
+    background: linear-gradient(135deg, #ff7070 0%, #f17071 100%);
+    box-shadow: 0 4px 12px rgba(255, 94, 94, 0.3);
 }
 
 .issues-link {
@@ -1842,4 +1853,64 @@ select option {
 
 .tutorial-step a:hover {
     border-bottom-color: var(--accent);
+}
+
+/* App Footer */
+.app-footer {
+    margin-left: var(--sidebar-width);
+    padding: 20px 40px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.footer-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--accent);
+}
+
+.footer-separator {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Main content wrapper */
+.app-container > main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
