@@ -45,6 +45,12 @@
                     </svg>
                     Materials
                 </button>
+                <button class="nav-item" data-page="tutorial">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Tutorial
+                </button>
             </nav>
             <div class="sidebar-footer">
                 <div class="version">v2.0</div>
@@ -394,6 +400,234 @@
                     </button>
                 </div>
                 <div id="filaments-list" class="items-grid"></div>
+            </div>
+
+            <!-- Tutorial Page -->
+            <div id="tutorial-page" class="page">
+                <div class="page-header">
+                    <h1>Tutorial</h1>
+                    <p class="page-subtitle">Complete guide to using the 3D Print Quote Generator</p>
+                </div>
+                
+                <div class="tutorial-content">
+                    <!-- Getting Started -->
+                    <section class="tutorial-section">
+                        <h2>🚀 Getting Started</h2>
+                        <div class="tutorial-step">
+                            <h3>1. Database Connection</h3>
+                            <p>When you first open the app, you'll see a database connection modal. A file connection is required to use the application.</p>
+                            <img src="screenshots/database-modal.png" alt="Database Connection Modal" class="tutorial-image">
+                            <p><strong>Options:</strong></p>
+                            <ul>
+                                <li><strong>Create New Database:</strong> Creates a new JSON file to store your data</li>
+                                <li><strong>Open Existing File:</strong> Load your previous data from an existing file</li>
+                            </ul>
+                            <p class="tutorial-note">💡 The modal will persist until you successfully connect a file to ensure your data is always saved.</p>
+                        </div>
+                    </section>
+
+                    <!-- Printer Management -->
+                    <section class="tutorial-section">
+                        <h2>🖨️ Printer Management</h2>
+                        <div class="tutorial-step">
+                            <h3>Adding a Printer</h3>
+                            <p>Navigate to the <strong>Printers</strong> page and click "Add Printer". Fill in your printer details:</p>
+                            <img src="screenshots/printers.png" alt="Printer Management" class="tutorial-image">
+                            <div class="tutorial-details">
+                                <h4>Basic Settings:</h4>
+                                <ul>
+                                    <li><strong>Name:</strong> Give your printer a descriptive name</li>
+                                    <li><strong>Power (kW):</strong> Power consumption (e.g., 0.22 kW for desktop printers)</li>
+                                    <li><strong>Cost per kWh:</strong> Your electricity rate (check your utility bill)</li>
+                                </ul>
+                                <h4>Machine Cost:</h4>
+                                <ul>
+                                    <li><strong>Cost ($):</strong> Purchase price of your printer</li>
+                                    <li><strong>Lifetime (hrs):</strong> Expected operating hours (e.g., 5000 hours)</li>
+                                </ul>
+                                <h4>Scheduled Maintenance:</h4>
+                                <p>Click "Add Maintenance Task" to set up periodic maintenance:</p>
+                                <ul>
+                                    <li><strong>Task Name:</strong> Description (e.g., "Grease & Oil")</li>
+                                    <li><strong>Cost ($):</strong> Cost of the maintenance</li>
+                                    <li><strong>Interval (hrs):</strong> How often needed (e.g., every 3000 hours)</li>
+                                </ul>
+                                <p class="tutorial-example">Example: After 3000 hours, perform Grease & Oil maintenance for $20</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Material Management -->
+                    <section class="tutorial-section">
+                        <h2>🧵 Material Management</h2>
+                        <div class="tutorial-step">
+                            <h3>Adding Materials</h3>
+                            <p>Navigate to the <strong>Materials</strong> page and click "Add Material":</p>
+                            <img src="screenshots/materials.png" alt="Material Management" class="tutorial-image">
+                            <div class="tutorial-details">
+                                <ul>
+                                    <li><strong>Name:</strong> Material type (PLA, ABS, PETG, etc.)</li>
+                                    <li><strong>Price per kg:</strong> Cost per kilogram (include shipping if buying online)</li>
+                                </ul>
+                                <p class="tutorial-example">Example: PLA at $30/kg, ABS at $35/kg</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quote Calculator -->
+                    <section class="tutorial-section">
+                        <h2>📊 Creating Quotes</h2>
+                        <div class="tutorial-step">
+                            <h3>Step-by-Step Quote Creation</h3>
+                            <img src="screenshots/quote-calculator.png" alt="Quote Calculator" class="tutorial-image">
+                            
+                            <h4>Step 1: Select Printer</h4>
+                            <p>Choose the printer you'll use for this job from the dropdown.</p>
+
+                            <h4>Step 2: Enter Print Time</h4>
+                            <p>Enter the estimated print time in days, hours, and minutes.</p>
+                            <p class="tutorial-tip">💡 <strong>Tip:</strong> You can upload a .gcode.3mf file to auto-fill this (see below)</p>
+
+                            <h4>Step 3: Add Materials</h4>
+                            <p>Click "Add Material" and:</p>
+                            <ul>
+                                <li>Select the material from the dropdown</li>
+                                <li>Enter the quantity in <strong>grams</strong> (the "g" suffix is shown automatically)</li>
+                            </ul>
+                            <p class="tutorial-example">For multi-color prints, add multiple material rows - one for each color!</p>
+
+                            <h4>Step 4: Add Labor Tasks</h4>
+                            <div class="tutorial-details">
+                                <p><strong>Pre-Processing:</strong> Tasks like slicing, modeling, file preparation</p>
+                                <p><strong>Post-Processing:</strong> Tasks like sanding, painting, assembly</p>
+                                <p>For each task, enter:</p>
+                                <ul>
+                                    <li>Task name (e.g., "Slicing", "Sanding")</li>
+                                    <li>Time (hours and minutes)</li>
+                                    <li>Hourly rate ($/h)</li>
+                                </ul>
+                                <p class="tutorial-example">Example: Slicing - 5 minutes @ $10/hour, Modeling - 1 hour @ $50/hour</p>
+                            </div>
+
+                            <h4>Step 5: Choose Pricing Mode</h4>
+                            <div class="tutorial-details">
+                                <p><strong>Profit Margin (%):</strong> Add a percentage markup to your costs (recommended)</p>
+                                <p><strong>Hourly Rate:</strong> Set a fixed price per print hour</p>
+                                <p><strong>Fixed Price:</strong> Manually set the final price</p>
+                            </div>
+
+                            <h4>Viewing the Quote</h4>
+                            <p>The <strong>Quote Summary</strong> panel shows your final price. Click "Cost Breakdown" to see detailed calculations for each cost component.</p>
+                        </div>
+                    </section>
+
+                    <!-- Uploading Files -->
+                    <section class="tutorial-section">
+                        <h2>📁 Uploading .gcode.3mf Files</h2>
+                        <div class="tutorial-step">
+                            <h3>How to Get .gcode.3mf Files</h3>
+                            <p>In your slicer (Bambu Studio, PrusaSlicer, etc.):</p>
+                            <ol>
+                                <li>Prepare your print and slice it</li>
+                                <li>Look for the <strong>print plate</strong> area</li>
+                                <li>Click the <strong>arrow/dropdown</strong> next to the print plate</li>
+                                <li>Select <strong>"Export Plate Slice File"</strong> or <strong>"Export .gcode.3mf"</strong></li>
+                                <li>Save the file</li>
+                            </ol>
+                            <p class="tutorial-warning">⚠️ <strong>Important:</strong> Only .gcode.3mf files work (not regular .3mf files). These contain the actual G-code with print time and material usage data.</p>
+
+                            <h3>Uploading the File</h3>
+                            <ol>
+                                <li>In the <strong>Print Time</strong> section, click "Upload .gcode.3mf File"</li>
+                                <li>Select your .gcode.3mf file</li>
+                                <li>The app will automatically:
+                                    <ul>
+                                        <li>Extract print time and convert to days/hours/minutes</li>
+                                        <li>Extract material usage (weight in grams) for each color</li>
+                                        <li>Create material entries for each filament used</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <p class="tutorial-note">💡 You'll still need to select the appropriate material types and add any labor tasks or extra costs.</p>
+                        </div>
+                    </section>
+
+                    <!-- Saving and Loading -->
+                    <section class="tutorial-section">
+                        <h2>💾 Saving and Loading Quotes</h2>
+                        <div class="tutorial-step">
+                            <h3>Saving a Quote</h3>
+                            <p>After filling in all your quote details, click the <strong>"Save Quote"</strong> button.</p>
+                            
+                            <h4>If you uploaded a .gcode.3mf file:</h4>
+                            <ul>
+                                <li>The quote data will be <strong>embedded</strong> in the .gcode.3mf file</li>
+                                <li>A new file will be downloaded: <code>filename-withQuote.gcode.3mf</code></li>
+                                <li>This file contains both the G-code AND your quote data</li>
+                                <li>Perfect for sharing with clients or keeping records</li>
+                            </ul>
+
+                            <h4>If no .gcode.3mf file was uploaded:</h4>
+                            <ul>
+                                <li>The quote will be saved as a <strong>JSON file</strong></li>
+                                <li>Filename: <code>quote_YYYY-MM-DDTHH-MM-SS.json</code></li>
+                                <li>You can load this later to restore the quote</li>
+                            </ul>
+
+                            <h3>Loading a Saved Quote</h3>
+                            <ol>
+                                <li>Click the <strong>"Load Quote"</strong> button</li>
+                                <li>Select either:
+                                    <ul>
+                                        <li>A .gcode.3mf file with embedded quote data</li>
+                                        <li>A .json quote file</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <p>The app will restore all your settings: printer, print time, materials, labor tasks, and pricing mode.</p>
+                        </div>
+                    </section>
+
+                    <!-- Tips -->
+                    <section class="tutorial-section">
+                        <h2>💡 Tips and Best Practices</h2>
+                        <div class="tutorial-step">
+                            <h3>Accurate Cost Calculation</h3>
+                            <ul>
+                                <li><strong>Measure Actual Power:</strong> Use a power meter to measure your printer's actual consumption</li>
+                                <li><strong>Track Material Usage:</strong> Weigh spools before/after prints or use .gcode.3mf upload for accuracy</li>
+                                <li><strong>Set Realistic Lifetime:</strong> Consider your printer's expected lifespan and maintenance needs</li>
+                                <li><strong>Document Maintenance:</strong> Keep receipts and track maintenance intervals</li>
+                            </ul>
+
+                            <h3>Pricing Strategy</h3>
+                            <ul>
+                                <li><strong>Start with Profit Margin:</strong> Begin with 20-30% margin and adjust based on market</li>
+                                <li><strong>Use Hourly Rate for Complex Jobs:</strong> When labor is the main cost driver</li>
+                                <li><strong>Factor in Overhead:</strong> Use "Extra Costs" for business expenses</li>
+                            </ul>
+
+                            <h3>File Management</h3>
+                            <ul>
+                                <li><strong>Backup Your Database:</strong> Keep your database.json file safe and backed up</li>
+                                <li><strong>Organize Saved Quotes:</strong> Use descriptive filenames and keep a folder for client quotes</li>
+                                <li><strong>Use .gcode.3mf Files:</strong> Always export from your slicer and embed quotes for complete records</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- Support -->
+                    <section class="tutorial-section">
+                        <h2>🆘 Need Help?</h2>
+                        <div class="tutorial-step">
+                            <p>If you encounter any issues or have questions:</p>
+                            <ul>
+                                <li>🐛 <a href="https://github.com/rogeriocamorim/3dPrinterCalculator/issues" target="_blank">Report Issues on GitHub</a></li>
+                                <li>💰 <a href="https://github.com/sponsors/rogeriocamorim" target="_blank">Support the Project</a></li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
             </div>
         </main>
     </div>
