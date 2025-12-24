@@ -1496,6 +1496,21 @@ select option {
 .modal-content p {
     color: var(--text-secondary);
     font-size: 14px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.modal-content .modal-description {
+    line-height: 1.6;
+}
+
+.modal-content .modal-benefit {
+    background: rgba(0, 212, 170, 0.1);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
     margin-bottom: 24px;
 }
 

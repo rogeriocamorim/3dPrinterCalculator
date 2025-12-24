@@ -101,10 +101,11 @@ async function takeScreenshots() {
             modal.id = 'db-modal';
             modal.innerHTML = `
                 <div class="modal-content">
-                    <h3>Database Connection</h3>
-                    <p>No file was selected. What would you like to do?</p>
+                    <h3>📁 Local Storage File</h3>
+                    <p class="modal-description">This app uses a <strong>local JSON file</strong> to save your printer and material settings on your computer. This is not a cloud database — your data stays private and local.</p>
+                    <p class="modal-benefit">💡 Once connected, you won't need to re-enter your printer specs and material prices every time!</p>
                     <div class="modal-buttons">
-                        <button class="btn-primary" id="create-new-db-btn">Create New Database</button>
+                        <button class="btn-primary" id="create-new-db-btn">Create New File</button>
                         <button class="btn-secondary" id="open-existing-db-btn">Open Existing File</button>
                     </div>
                 </div>
