@@ -63,6 +63,8 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 
 ## Getting Started
 
+> 📚 **New to the app?** Check out the [Complete Tutorial](TUTORIAL.md) for a step-by-step guide covering all features!
+
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Edge, Safari)
 - A local web server (for full functionality)
