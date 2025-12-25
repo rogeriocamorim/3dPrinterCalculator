@@ -66,8 +66,11 @@ const STORE_NAME = 'fileHandles';
 const PRINTER_PRESETS = [
     // Bambu Lab (Updated 2025)
     { name: "H2D", brand: "Bambu Lab", power: 0.45, lifetime: 10000, cost: 1999 },
+    { name: "H2S", brand: "Bambu Lab", power: 0.40, lifetime: 10000, cost: 1599 },
+    { name: "H2C", brand: "Bambu Lab", power: 0.42, lifetime: 10000, cost: 1799 },
     { name: "X1 Carbon Combo", brand: "Bambu Lab", power: 0.35, lifetime: 8000, cost: 1449 },
     { name: "X1E", brand: "Bambu Lab", power: 0.38, lifetime: 10000, cost: 1699 },
+    { name: "P2S Combo", brand: "Bambu Lab", power: 0.32, lifetime: 8000, cost: 999 },
     { name: "P1S Combo", brand: "Bambu Lab", power: 0.30, lifetime: 7000, cost: 949 },
     { name: "P1P", brand: "Bambu Lab", power: 0.28, lifetime: 7000, cost: 599 },
     { name: "A1", brand: "Bambu Lab", power: 0.22, lifetime: 5000, cost: 399 },
@@ -116,6 +119,10 @@ const PRINTER_PRESETS = [
     // Artillery
     { name: "Sidewinder X2", brand: "Artillery", power: 0.30, lifetime: 5000, cost: 400 },
     { name: "Genius Pro", brand: "Artillery", power: 0.24, lifetime: 5000, cost: 280 },
+    // Snapmaker
+    { name: "U1", brand: "Snapmaker", power: 0.25, lifetime: 6000, cost: 599 },
+    { name: "J1/J1s", brand: "Snapmaker", power: 0.35, lifetime: 7000, cost: 1299 },
+    { name: "Artisan", brand: "Snapmaker", power: 0.40, lifetime: 8000, cost: 2799 },
     // Voron (DIY)
     { name: "Voron 2.4", brand: "Voron (DIY)", power: 0.35, lifetime: 10000, cost: 1500 },
     { name: "Voron Trident", brand: "Voron (DIY)", power: 0.32, lifetime: 10000, cost: 1200 },

@@ -13,6 +13,23 @@ echo "║           3D Print Quote Generator v2.0                   ║"
 echo "╚═══════════════════════════════════════════════════════════╝"
 echo ""
 
+# Kill any existing process on the port
+kill_existing() {
+    if command -v lsof &> /dev/null; then
+        EXISTING_PID=$(lsof -ti:$PORT 2>/dev/null)
+        if [ -n "$EXISTING_PID" ]; then
+            echo "⚠ Port $PORT is in use. Killing existing process (PID: $EXISTING_PID)..."
+            kill -9 $EXISTING_PID 2>/dev/null
+            sleep 1
+            echo "✓ Port freed!"
+            echo ""
+        fi
+    fi
+}
+
+# Kill existing process before starting
+kill_existing
+
 # Function to open browser
 open_browser() {
     sleep 1
