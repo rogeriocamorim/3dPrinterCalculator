@@ -539,6 +539,157 @@ body {
     color: var(--text-muted);
 }
 
+/* Form Divider */
+.form-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.form-divider::before,
+.form-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* Preset Dropdowns */
+.preset-dropdown {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.preset-dropdown:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.preset-dropdown option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+.preset-dropdown optgroup {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.preset-section {
+    background: rgba(0, 212, 170, 0.05);
+    border-radius: var(--radius-sm);
+    padding: 12px !important;
+    margin-bottom: 12px;
+}
+
+.preset-section .section-title {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+/* Help Tooltips */
+.help-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: help;
+    margin-left: 4px;
+    transition: all var(--transition);
+    position: relative;
+}
+
+.help-icon.small {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+}
+
+.help-icon:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
+.help-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    white-space: normal;
+    width: 220px;
+    text-align: left;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.help-icon::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border-color);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1001;
+}
+
+.help-icon:hover::after,
+.help-icon:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Region preset in printer card */
+.region-preset-select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.region-preset-select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
 /* Wizard Actions */
 .wizard-actions {
     display: flex;

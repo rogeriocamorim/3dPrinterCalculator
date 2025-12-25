@@ -151,33 +151,65 @@
                     <p class="wizard-description">Set up your 3D printer to accurately calculate electricity and depreciation costs.</p>
                     
                     <div class="wizard-form">
+                        <!-- Printer Preset Selector -->
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>
+                                    Select Your Printer Model
+                                    <span class="help-icon" data-tooltip="Select your printer to auto-fill power and cost estimates. Values are approximate.">?</span>
+                                </label>
+                                <select id="wizard-printer-preset" class="preset-dropdown">
+                                    <option value="">-- Choose a printer model --</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-divider">
+                            <span>or enter manually</span>
+                        </div>
+                        
                         <div class="form-row">
                             <div class="form-group full">
                                 <label>Printer Name</label>
-                                <input type="text" id="wizard-printer-name" value="My 3D Printer" placeholder="e.g., Ender 3 Pro">
+                                <input type="text" id="wizard-printer-name" value="" placeholder="e.g., My Ender 3 Pro">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Power (kW)</label>
+                                <label>
+                                    Power (kW)
+                                    <span class="help-icon" data-tooltip="The electrical power your printer uses while printing. Check your printer's specs or measure with a power meter.">?</span>
+                                </label>
                                 <input type="number" id="wizard-printer-power" value="0.22" step="0.01" min="0">
-                                <span class="form-hint">Average power consumption</span>
+                                <span class="form-hint">Typical: 0.1 - 0.4 kW</span>
                             </div>
                             <div class="form-group">
-                                <label>Electricity ($/kWh)</label>
-                                <input type="number" id="wizard-printer-electricity" value="0.12" step="0.01" min="0">
-                                <span class="form-hint">Your electricity rate</span>
+                                <label>
+                                    Electricity ($/kWh)
+                                    <span class="help-icon" data-tooltip="Your cost per kilowatt-hour. Find this on your electricity bill or select your region below.">?</span>
+                                </label>
+                                <select id="wizard-region-preset" class="preset-dropdown">
+                                    <option value="">-- Select your region --</option>
+                                </select>
+                                <input type="number" id="wizard-printer-electricity" value="0.12" step="0.01" min="0" style="margin-top: 8px;">
+                                <span class="form-hint">Check your power bill</span>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Purchase Price ($)</label>
+                                <label>
+                                    Purchase Price ($)
+                                    <span class="help-icon" data-tooltip="The total cost you paid for the printer, including shipping and taxes.">?</span>
+                                </label>
                                 <input type="number" id="wizard-printer-cost" value="300" step="1" min="0">
                             </div>
                             <div class="form-group">
-                                <label>Expected Lifetime (hours)</label>
+                                <label>
+                                    Expected Lifetime (hours)
+                                    <span class="help-icon" data-tooltip="Estimated total hours the printer will operate before major replacement. Used to calculate depreciation per print.">?</span>
+                                </label>
                                 <input type="number" id="wizard-printer-lifetime" value="5000" step="100" min="0">
-                                <span class="form-hint">For depreciation calculation</span>
+                                <span class="form-hint">Typical: 3000 - 10000 hrs</span>
                             </div>
                         </div>
                     </div>

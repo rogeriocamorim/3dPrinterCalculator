@@ -31,6 +31,105 @@ const DB_NAME = '3dPrintQuoteDB';
 const STORE_NAME = 'fileHandles';
 
 // ============================================
+// Printer Presets Database
+// ============================================
+
+const PRINTER_PRESETS = [
+    // Creality
+    { name: "Ender 3 / Ender 3 Pro", brand: "Creality", power: 0.22, lifetime: 5000, cost: 200 },
+    { name: "Ender 3 V2 / V2 Neo", brand: "Creality", power: 0.27, lifetime: 5000, cost: 280 },
+    { name: "Ender 3 S1 / S1 Pro", brand: "Creality", power: 0.30, lifetime: 6000, cost: 400 },
+    { name: "CR-10 / CR-10S", brand: "Creality", power: 0.28, lifetime: 6000, cost: 450 },
+    { name: "K1 / K1 Max", brand: "Creality", power: 0.35, lifetime: 7000, cost: 600 },
+    // Prusa
+    { name: "Prusa MK3S+", brand: "Prusa", power: 0.12, lifetime: 8000, cost: 800 },
+    { name: "Prusa MK4", brand: "Prusa", power: 0.15, lifetime: 8000, cost: 1100 },
+    { name: "Prusa Mini+", brand: "Prusa", power: 0.08, lifetime: 6000, cost: 430 },
+    { name: "Prusa XL", brand: "Prusa", power: 0.25, lifetime: 10000, cost: 2000 },
+    // Bambu Lab
+    { name: "Bambu Lab X1 Carbon", brand: "Bambu Lab", power: 0.35, lifetime: 8000, cost: 1450 },
+    { name: "Bambu Lab X1E", brand: "Bambu Lab", power: 0.38, lifetime: 10000, cost: 1700 },
+    { name: "Bambu Lab P1S", brand: "Bambu Lab", power: 0.30, lifetime: 7000, cost: 700 },
+    { name: "Bambu Lab P1P", brand: "Bambu Lab", power: 0.28, lifetime: 7000, cost: 600 },
+    { name: "Bambu Lab A1", brand: "Bambu Lab", power: 0.22, lifetime: 5000, cost: 400 },
+    { name: "Bambu Lab A1 Mini", brand: "Bambu Lab", power: 0.18, lifetime: 5000, cost: 300 },
+    // Elegoo
+    { name: "Elegoo Neptune 3 Pro", brand: "Elegoo", power: 0.24, lifetime: 5000, cost: 260 },
+    { name: "Elegoo Neptune 4 Pro", brand: "Elegoo", power: 0.28, lifetime: 6000, cost: 320 },
+    // Anycubic
+    { name: "Anycubic Kobra 2", brand: "Anycubic", power: 0.25, lifetime: 5000, cost: 270 },
+    { name: "Anycubic Kobra 2 Max", brand: "Anycubic", power: 0.32, lifetime: 6000, cost: 550 },
+    { name: "Anycubic Vyper", brand: "Anycubic", power: 0.26, lifetime: 5000, cost: 300 },
+    // Artillery
+    { name: "Artillery Sidewinder X2", brand: "Artillery", power: 0.30, lifetime: 5000, cost: 400 },
+    { name: "Artillery Genius Pro", brand: "Artillery", power: 0.24, lifetime: 5000, cost: 280 },
+    // Flashforge
+    { name: "Flashforge Adventurer 5M", brand: "Flashforge", power: 0.28, lifetime: 6000, cost: 450 },
+    // Sovol
+    { name: "Sovol SV06", brand: "Sovol", power: 0.24, lifetime: 5000, cost: 260 },
+    { name: "Sovol SV07", brand: "Sovol", power: 0.28, lifetime: 5000, cost: 350 },
+    // Voron (DIY)
+    { name: "Voron 2.4", brand: "Voron (DIY)", power: 0.35, lifetime: 10000, cost: 1500 },
+    { name: "Voron Trident", brand: "Voron (DIY)", power: 0.32, lifetime: 10000, cost: 1200 },
+    // Resin Printers
+    { name: "Elegoo Mars 3 Pro", brand: "Elegoo (Resin)", power: 0.05, lifetime: 3000, cost: 250 },
+    { name: "Elegoo Saturn 3", brand: "Elegoo (Resin)", power: 0.06, lifetime: 3000, cost: 450 },
+    { name: "Anycubic Photon Mono", brand: "Anycubic (Resin)", power: 0.05, lifetime: 3000, cost: 200 },
+    { name: "Phrozen Sonic Mini", brand: "Phrozen (Resin)", power: 0.05, lifetime: 3000, cost: 300 },
+    // Custom
+    { name: "Custom / Other", brand: "Other", power: null, lifetime: null, cost: null }
+];
+
+// ============================================
+// Regional Electricity Rates
+// ============================================
+
+const ELECTRICITY_RATES = [
+    // North America
+    { region: "USA (Average)", rate: 0.12, currency: "$" },
+    { region: "USA - California", rate: 0.22, currency: "$" },
+    { region: "USA - Texas", rate: 0.11, currency: "$" },
+    { region: "USA - New York", rate: 0.19, currency: "$" },
+    { region: "USA - Florida", rate: 0.12, currency: "$" },
+    { region: "Canada (Average)", rate: 0.10, currency: "$" },
+    { region: "Canada - Ontario", rate: 0.13, currency: "$" },
+    { region: "Canada - Quebec", rate: 0.07, currency: "$" },
+    { region: "Canada - British Columbia", rate: 0.11, currency: "$" },
+    { region: "Canada - Alberta", rate: 0.12, currency: "$" },
+    { region: "Mexico", rate: 0.08, currency: "$" },
+    // Europe
+    { region: "UK", rate: 0.28, currency: "£" },
+    { region: "Germany", rate: 0.32, currency: "€" },
+    { region: "France", rate: 0.18, currency: "€" },
+    { region: "Spain", rate: 0.22, currency: "€" },
+    { region: "Italy", rate: 0.25, currency: "€" },
+    { region: "Netherlands", rate: 0.26, currency: "€" },
+    { region: "Belgium", rate: 0.28, currency: "€" },
+    { region: "Portugal", rate: 0.20, currency: "€" },
+    { region: "Poland", rate: 0.15, currency: "€" },
+    { region: "Sweden", rate: 0.18, currency: "€" },
+    { region: "Norway", rate: 0.10, currency: "€" },
+    // Asia Pacific
+    { region: "Australia", rate: 0.25, currency: "$" },
+    { region: "New Zealand", rate: 0.22, currency: "$" },
+    { region: "Japan", rate: 0.24, currency: "¥" },
+    { region: "South Korea", rate: 0.10, currency: "₩" },
+    { region: "Singapore", rate: 0.18, currency: "$" },
+    { region: "India", rate: 0.08, currency: "₹" },
+    // South America
+    { region: "Brazil", rate: 0.15, currency: "R$" },
+    { region: "Argentina", rate: 0.05, currency: "$" },
+    { region: "Chile", rate: 0.14, currency: "$" },
+    { region: "Colombia", rate: 0.12, currency: "$" },
+    // Other
+    { region: "South Africa", rate: 0.12, currency: "R" },
+    { region: "UAE", rate: 0.08, currency: "AED" },
+    { region: "Israel", rate: 0.15, currency: "₪" },
+    // Custom
+    { region: "Custom / Other", rate: null, currency: null }
+];
+
+// ============================================
 // Initialization
 // ============================================
 
@@ -90,6 +189,9 @@ function hideOnboardingWizard() {
 }
 
 function initializeWizardHandlers() {
+    // Populate preset dropdowns
+    populateWizardPresets();
+    
     // Step 1: Storage
     document.getElementById('wizard-create-file')?.addEventListener('click', async () => {
         await wizardCreateFile();
@@ -102,6 +204,16 @@ function initializeWizardHandlers() {
     document.getElementById('wizard-skip-storage')?.addEventListener('click', () => {
         // Skip storage, use localStorage only
         wizardSkipStorage();
+    });
+    
+    // Step 2: Printer Preset
+    document.getElementById('wizard-printer-preset')?.addEventListener('change', (e) => {
+        handleWizardPrinterPreset(e.target.value);
+    });
+    
+    // Step 2: Region Preset
+    document.getElementById('wizard-region-preset')?.addEventListener('change', (e) => {
+        handleWizardRegionPreset(e.target.value);
     });
     
     // Step 2: Printer
@@ -130,6 +242,113 @@ function initializeWizardHandlers() {
             customRow.style.display = e.target.value === 'Other' ? 'block' : 'none';
         }
     });
+}
+
+// ============================================
+// Preset Helper Functions
+// ============================================
+
+function populateWizardPresets() {
+    // Populate printer preset dropdown
+    const printerPresetEl = document.getElementById('wizard-printer-preset');
+    if (printerPresetEl) {
+        printerPresetEl.innerHTML = '<option value="">-- Choose a printer model --</option>' + generatePrinterPresetOptions();
+    }
+    
+    // Populate region preset dropdown
+    const regionPresetEl = document.getElementById('wizard-region-preset');
+    if (regionPresetEl) {
+        regionPresetEl.innerHTML = '<option value="">-- Select your region --</option>' + generateRegionPresetOptions();
+    }
+}
+
+function generatePrinterPresetOptions() {
+    // Group by brand
+    const brands = {};
+    PRINTER_PRESETS.forEach(preset => {
+        if (!brands[preset.brand]) {
+            brands[preset.brand] = [];
+        }
+        brands[preset.brand].push(preset);
+    });
+    
+    let html = '';
+    Object.keys(brands).forEach(brand => {
+        html += `<optgroup label="${brand}">`;
+        brands[brand].forEach(preset => {
+            const powerInfo = preset.power ? ` (${preset.power} kW)` : '';
+            html += `<option value="${preset.name}">${preset.name}${powerInfo}</option>`;
+        });
+        html += '</optgroup>';
+    });
+    
+    return html;
+}
+
+function generateRegionPresetOptions() {
+    let html = '';
+    ELECTRICITY_RATES.forEach(rate => {
+        const rateInfo = rate.rate ? ` (${rate.currency}${rate.rate}/kWh)` : '';
+        html += `<option value="${rate.region}">${rate.region}${rateInfo}</option>`;
+    });
+    return html;
+}
+
+function handleWizardPrinterPreset(presetName) {
+    const preset = PRINTER_PRESETS.find(p => p.name === presetName);
+    if (!preset || !preset.power) return;
+    
+    // Fill in the form fields
+    document.getElementById('wizard-printer-name').value = preset.name;
+    document.getElementById('wizard-printer-power').value = preset.power;
+    if (preset.cost) {
+        document.getElementById('wizard-printer-cost').value = preset.cost;
+    }
+    if (preset.lifetime) {
+        document.getElementById('wizard-printer-lifetime').value = preset.lifetime;
+    }
+}
+
+function handleWizardRegionPreset(regionName) {
+    const rate = ELECTRICITY_RATES.find(r => r.region === regionName);
+    if (!rate || !rate.rate) return;
+    
+    document.getElementById('wizard-printer-electricity').value = rate.rate;
+}
+
+function applyPrinterPreset(printerId, presetName) {
+    const preset = PRINTER_PRESETS.find(p => p.name === presetName);
+    if (!preset || !preset.power) return;
+    
+    const printer = appData.printers.find(p => p.id === printerId);
+    if (!printer) return;
+    
+    // Update printer with preset values
+    printer.name = preset.name;
+    printer.kwPerHour = preset.power;
+    if (preset.cost) printer.cost = preset.cost;
+    if (preset.lifetime) printer.expectedLifetimeHours = preset.lifetime;
+    
+    // Re-render and save
+    renderPrinters();
+    updatePrinterSelect();
+    calculateQuote();
+    autoSave();
+}
+
+function applyRegionPreset(printerId, regionName) {
+    const rate = ELECTRICITY_RATES.find(r => r.region === regionName);
+    if (!rate || !rate.rate) return;
+    
+    const printer = appData.printers.find(p => p.id === printerId);
+    if (!printer) return;
+    
+    printer.costPerKwh = rate.rate;
+    
+    // Re-render and save
+    renderPrinters();
+    calculateQuote();
+    autoSave();
 }
 
 function showWizardStep(step) {
@@ -2141,18 +2360,38 @@ function renderPrinters() {
                     </svg>
                 </button>
             </div>
+            <div class="item-card-section preset-section">
+                <label class="section-title">Quick Fill from Preset</label>
+                <select class="preset-dropdown printer-preset-select" onchange="applyPrinterPreset('${printer.id}', this.value)">
+                    <option value="">-- Select a printer model --</option>
+                    ${generatePrinterPresetOptions()}
+                </select>
+            </div>
             <div class="item-card-section">
-                <label class="section-title">Electricity</label>
+                <label class="section-title">
+                    Electricity
+                    <span class="help-icon" data-tooltip="Power consumption and electricity rate affect cost per print hour.">?</span>
+                </label>
                 <div class="item-card-fields">
                     <div class="item-field">
-                        <label>Power (kW)</label>
+                        <label>
+                            Power (kW)
+                            <span class="help-icon small" data-tooltip="Check your printer's specs or use a power meter. Typical: 0.1-0.4 kW">?</span>
+                        </label>
                         <input type="number" value="${printer.kwPerHour || 0}" step="0.01" min="0"
                             onchange="updatePrinter('${printer.id}', 'kwPerHour', this.value)">
                     </div>
                     <div class="item-field">
-                        <label>$/kWh</label>
+                        <label>
+                            $/kWh
+                            <span class="help-icon small" data-tooltip="Your electricity rate. Check your power bill.">?</span>
+                        </label>
+                        <select class="region-preset-select" onchange="applyRegionPreset('${printer.id}', this.value)">
+                            <option value="">Region...</option>
+                            ${generateRegionPresetOptions()}
+                        </select>
                         <input type="number" value="${printer.costPerKwh || 0}" step="0.01" min="0"
-                            onchange="updatePrinter('${printer.id}', 'costPerKwh', this.value)">
+                            onchange="updatePrinter('${printer.id}', 'costPerKwh', this.value)" style="margin-top: 4px;">
                     </div>
                 </div>
             </div>
