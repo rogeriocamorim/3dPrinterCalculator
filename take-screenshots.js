@@ -49,6 +49,57 @@ async function takeScreenshots() {
         });
         console.log('   ✓ landing-page.png');
 
+        // 0b. Onboarding Wizard - Step 1
+        console.log('📸 Taking screenshot: Wizard Step 1...');
+        await page.evaluate(() => {
+            // Click Get Started to show wizard
+            const getStartedBtn = document.getElementById('get-started-btn');
+            if (getStartedBtn) getStartedBtn.click();
+        });
+        await new Promise(r => setTimeout(r, 500));
+        await page.screenshot({ 
+            path: path.join(SCREENSHOTS_DIR, 'wizard-step1.png'),
+            fullPage: false 
+        });
+        console.log('   ✓ wizard-step1.png');
+
+        // 0c. Onboarding Wizard - Step 2
+        console.log('📸 Taking screenshot: Wizard Step 2...');
+        await page.evaluate(() => {
+            // Show step 2 manually
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('wizard-step-2').classList.add('active');
+            document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active', 'completed'));
+            document.querySelector('.progress-step[data-step="1"]').classList.add('completed');
+            document.querySelector('.progress-step[data-step="2"]').classList.add('active');
+            document.querySelectorAll('.progress-line')[0].classList.add('completed');
+        });
+        await new Promise(r => setTimeout(r, 300));
+        await page.screenshot({ 
+            path: path.join(SCREENSHOTS_DIR, 'wizard-step2.png'),
+            fullPage: false 
+        });
+        console.log('   ✓ wizard-step2.png');
+
+        // 0d. Onboarding Wizard - Step 3
+        console.log('📸 Taking screenshot: Wizard Step 3...');
+        await page.evaluate(() => {
+            // Show step 3 manually
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('wizard-step-3').classList.add('active');
+            document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active', 'completed'));
+            document.querySelector('.progress-step[data-step="1"]').classList.add('completed');
+            document.querySelector('.progress-step[data-step="2"]').classList.add('completed');
+            document.querySelector('.progress-step[data-step="3"]').classList.add('active');
+            document.querySelectorAll('.progress-line').forEach(l => l.classList.add('completed'));
+        });
+        await new Promise(r => setTimeout(r, 300));
+        await page.screenshot({ 
+            path: path.join(SCREENSHOTS_DIR, 'wizard-step3.png'),
+            fullPage: false 
+        });
+        console.log('   ✓ wizard-step3.png');
+
         // 1. Quote Calculator - Click "Get Started" to enter app
         console.log('📸 Taking screenshot: Quote Calculator...');
         

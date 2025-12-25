@@ -41,11 +41,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize landing page
     initializeLandingPage();
     
-    // Check if user has already used the app (skip landing)
+    // Check if user has already used the app (skip landing and wizard)
     const hasUsedBefore = localStorage.getItem('3dPrintQuoteHasUsedApp');
     if (hasUsedBefore) {
-        // Skip landing, go directly to app
+        // Skip landing and wizard, go directly to app
         hideLandingPage();
+        showMainApp();
         initializeApp();
         await tryAutoConnect();
     }
@@ -55,21 +56,272 @@ function initializeLandingPage() {
     const getStartedBtn = document.getElementById('get-started-btn');
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', async () => {
-            localStorage.setItem('3dPrintQuoteHasUsedApp', 'true');
+            // Hide landing and show onboarding wizard
             hideLandingPage();
-            initializeApp();
-            // Show the database modal after a brief delay
-            setTimeout(() => {
-                showCreateDatabaseModal();
-            }, 300);
+            showOnboardingWizard();
         });
     }
 }
 
+// ============================================
+// Onboarding Wizard
+// ============================================
+
+let currentWizardStep = 1;
+
+function showOnboardingWizard() {
+    const wizard = document.getElementById('onboarding-wizard');
+    if (wizard) {
+        wizard.style.display = 'flex';
+        initializeWizardHandlers();
+        showWizardStep(1);
+    }
+}
+
+function hideOnboardingWizard() {
+    const wizard = document.getElementById('onboarding-wizard');
+    if (wizard) {
+        wizard.style.opacity = '0';
+        wizard.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            wizard.style.display = 'none';
+        }, 300);
+    }
+}
+
+function initializeWizardHandlers() {
+    // Step 1: Storage
+    document.getElementById('wizard-create-file')?.addEventListener('click', async () => {
+        await wizardCreateFile();
+    });
+    
+    document.getElementById('wizard-open-file')?.addEventListener('click', async () => {
+        await wizardOpenFile();
+    });
+    
+    document.getElementById('wizard-skip-storage')?.addEventListener('click', () => {
+        // Skip storage, use localStorage only
+        wizardSkipStorage();
+    });
+    
+    // Step 2: Printer
+    document.getElementById('wizard-add-printer')?.addEventListener('click', () => {
+        wizardAddPrinter();
+    });
+    
+    document.getElementById('wizard-skip-printer')?.addEventListener('click', () => {
+        showWizardStep(3);
+    });
+    
+    // Step 3: Material
+    document.getElementById('wizard-finish')?.addEventListener('click', () => {
+        wizardAddMaterial();
+        completeOnboarding();
+    });
+    
+    document.getElementById('wizard-skip-material')?.addEventListener('click', () => {
+        completeOnboarding();
+    });
+    
+    // Custom material name toggle
+    document.getElementById('wizard-material-type')?.addEventListener('change', (e) => {
+        const customRow = document.getElementById('wizard-custom-material-row');
+        if (customRow) {
+            customRow.style.display = e.target.value === 'Other' ? 'block' : 'none';
+        }
+    });
+}
+
+function showWizardStep(step) {
+    currentWizardStep = step;
+    
+    // Update step visibility
+    document.querySelectorAll('.wizard-step').forEach(el => {
+        el.classList.remove('active');
+    });
+    const stepEl = document.getElementById(`wizard-step-${step}`);
+    if (stepEl) {
+        stepEl.classList.add('active');
+    }
+    
+    // Update progress indicator
+    document.querySelectorAll('.progress-step').forEach(el => {
+        const stepNum = parseInt(el.dataset.step);
+        el.classList.remove('active', 'completed');
+        if (stepNum < step) {
+            el.classList.add('completed');
+        } else if (stepNum === step) {
+            el.classList.add('active');
+        }
+    });
+    
+    // Update progress lines
+    document.querySelectorAll('.progress-line').forEach((line, index) => {
+        if (index < step - 1) {
+            line.classList.add('completed');
+        } else {
+            line.classList.remove('completed');
+        }
+    });
+}
+
+async function wizardCreateFile() {
+    if ('showSaveFilePicker' in window) {
+        try {
+            fileHandle = await window.showSaveFilePicker({
+                suggestedName: '3d-print-database.json',
+                types: [{
+                    description: 'JSON Database',
+                    accept: { 'application/json': ['.json'] }
+                }]
+            });
+            
+            // Initialize with empty data
+            appData = {
+                printers: [],
+                filaments: [],
+                laborTasks: { pre: [], post: [] }
+            };
+            
+            await saveToFile();
+            isConnected = true;
+            await storeFileHandle(fileHandle);
+            
+            // Move to next step
+            showWizardStep(2);
+            
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Error creating file:', error);
+                alert('Error creating file. Please try again.');
+            }
+        }
+    } else {
+        // Fallback for Firefox
+        wizardSkipStorage();
+    }
+}
+
+async function wizardOpenFile() {
+    if ('showOpenFilePicker' in window) {
+        try {
+            const [handle] = await window.showOpenFilePicker({
+                types: [{
+                    description: 'JSON Database',
+                    accept: { 'application/json': ['.json'] }
+                }],
+                multiple: false
+            });
+            
+            fileHandle = handle;
+            
+            // Load existing data
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            appData = JSON.parse(text);
+            updateIdCounters();
+            
+            isConnected = true;
+            await storeFileHandle(handle);
+            
+            // If file has printers/materials, skip those steps
+            if (appData.printers?.length > 0 && appData.filaments?.length > 0) {
+                completeOnboarding();
+            } else if (appData.printers?.length > 0) {
+                showWizardStep(3);
+            } else {
+                showWizardStep(2);
+            }
+            
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Error opening file:', error);
+                alert('Error opening file. Please try again.');
+            }
+        }
+    } else {
+        // Fallback for Firefox - use file input
+        document.getElementById('file-input')?.click();
+    }
+}
+
+function wizardSkipStorage() {
+    // Use localStorage only
+    isConnected = false;
+    appData = {
+        printers: [],
+        filaments: [],
+        laborTasks: { pre: [], post: [] }
+    };
+    saveToLocalStorage();
+    showWizardStep(2);
+}
+
+function wizardAddPrinter() {
+    const name = document.getElementById('wizard-printer-name')?.value || 'My 3D Printer';
+    const power = parseFloat(document.getElementById('wizard-printer-power')?.value) || 0.22;
+    const electricity = parseFloat(document.getElementById('wizard-printer-electricity')?.value) || 0.12;
+    const cost = parseFloat(document.getElementById('wizard-printer-cost')?.value) || 0;
+    const lifetime = parseFloat(document.getElementById('wizard-printer-lifetime')?.value) || 5000;
+    
+    const id = `printer-${printerIdCounter++}`;
+    const newPrinter = {
+        id,
+        name,
+        kwPerHour: power,
+        costPerKwh: electricity,
+        cost,
+        expectedLifetimeHours: lifetime,
+        includeDepreciation: true,
+        maintenanceTasks: []
+    };
+    
+    appData.printers.push(newPrinter);
+    saveToLocalStorage();
+    if (isConnected) saveToFile();
+    
+    showWizardStep(3);
+}
+
+function wizardAddMaterial() {
+    let name = document.getElementById('wizard-material-type')?.value || 'PLA';
+    if (name === 'Other') {
+        name = document.getElementById('wizard-material-custom')?.value || 'Custom Material';
+    }
+    const price = parseFloat(document.getElementById('wizard-material-price')?.value) || 20;
+    
+    const id = `filament-${filamentIdCounter++}`;
+    const newFilament = {
+        id,
+        name,
+        pricePerKg: price
+    };
+    
+    appData.filaments.push(newFilament);
+    saveToLocalStorage();
+    if (isConnected) saveToFile();
+}
+
+function completeOnboarding() {
+    // Mark as completed
+    localStorage.setItem('3dPrintQuoteHasUsedApp', 'true');
+    
+    // Hide wizard and show main app
+    hideOnboardingWizard();
+    showMainApp();
+    
+    // Initialize app
+    initializeApp();
+    
+    // Update connection status
+    setConnectionStatus(isConnected, isConnected ? 'full' : 'limited');
+    
+    // Render all data
+    renderAll();
+}
+
 function hideLandingPage() {
     const landingPage = document.getElementById('landing-page');
-    const appContainer = document.querySelector('.app-container');
-    const dbStatus = document.getElementById('db-status');
     
     if (landingPage) {
         landingPage.style.opacity = '0';
@@ -78,6 +330,11 @@ function hideLandingPage() {
             landingPage.style.display = 'none';
         }, 300);
     }
+}
+
+function showMainApp() {
+    const appContainer = document.querySelector('.app-container');
+    const dbStatus = document.getElementById('db-status');
     
     if (appContainer) {
         appContainer.style.display = '';
@@ -192,10 +449,11 @@ async function tryAutoConnect() {
         }
     }
     
-    // If not auto-connected, show the modal
+    // If not auto-connected, show the reconnect modal for returning users
+    // (New users go through the wizard, not here)
     if (!isConnected) {
         setTimeout(() => {
-            showCreateDatabaseModal();
+            showReconnectModal();
         }, 300);
     }
     
@@ -372,6 +630,55 @@ function showCreateDatabaseModal() {
     // modal.addEventListener('click', (e) => {
     //     if (e.target === modal) closeModal();
     // });
+}
+
+function showReconnectModal() {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('db-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const hasFileSystemAccess = window.browserSupport?.hasFileSystemAccess;
+    
+    // Create a simpler reconnect modal for returning users
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'db-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>📁 Reconnect Storage</h3>
+            <p class="modal-description">Please reconnect to your settings file to continue with auto-save.</p>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="open-existing-db-btn">${hasFileSystemAccess ? 'Open Settings File' : 'Upload Settings File'}</button>
+                <button class="btn-secondary" id="create-new-db-btn">${hasFileSystemAccess ? 'Create New File' : 'Start Fresh'}</button>
+            </div>
+            <div class="modal-skip">
+                <button class="btn-text" id="continue-without-file">Continue without file (browser storage only)</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Add event listeners
+    document.getElementById('open-existing-db-btn').addEventListener('click', async () => {
+        await connectToDatabase();
+        if (isConnected) {
+            closeModal();
+        }
+    });
+    
+    document.getElementById('create-new-db-btn').addEventListener('click', async () => {
+        await createNewDatabase();
+        if (isConnected) {
+            closeModal();
+        }
+    });
+    
+    document.getElementById('continue-without-file')?.addEventListener('click', () => {
+        setConnectionStatus(false, 'limited');
+        closeModal();
+    });
 }
 
 function closeModal() {

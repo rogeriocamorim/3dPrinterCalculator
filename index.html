@@ -77,6 +77,165 @@
         </div>
     </div>
 
+    <!-- Onboarding Wizard -->
+    <div id="onboarding-wizard" class="onboarding-wizard" style="display: none;">
+        <div class="wizard-container">
+            <!-- Progress Indicator -->
+            <div class="wizard-progress">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Storage</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Printer</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Material</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Storage File -->
+            <div class="wizard-step active" id="wizard-step-1">
+                <div class="wizard-card">
+                    <div class="wizard-icon">📁</div>
+                    <h2>Set Up Your Storage</h2>
+                    <p class="wizard-description">Your printer and material settings are saved in a local JSON file on your computer. This keeps your data private and accessible offline.</p>
+                    
+                    <div class="wizard-benefits">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span>No account needed</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span>Data stays on your computer</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span>Auto-saves your changes</span>
+                        </div>
+                    </div>
+
+                    <div class="wizard-actions">
+                        <button class="btn-primary btn-large" id="wizard-create-file">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Create New File
+                        </button>
+                        <button class="btn-secondary" id="wizard-open-file">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+                            </svg>
+                            Open Existing File
+                        </button>
+                    </div>
+
+                    <div class="wizard-skip">
+                        <button class="btn-text" id="wizard-skip-storage">
+                            Skip for now (data saved in browser only)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Add Printer -->
+            <div class="wizard-step" id="wizard-step-2">
+                <div class="wizard-card">
+                    <div class="wizard-icon">🖨️</div>
+                    <h2>Add Your First Printer</h2>
+                    <p class="wizard-description">Set up your 3D printer to accurately calculate electricity and depreciation costs.</p>
+                    
+                    <div class="wizard-form">
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>Printer Name</label>
+                                <input type="text" id="wizard-printer-name" value="My 3D Printer" placeholder="e.g., Ender 3 Pro">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Power (kW)</label>
+                                <input type="number" id="wizard-printer-power" value="0.22" step="0.01" min="0">
+                                <span class="form-hint">Average power consumption</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Electricity ($/kWh)</label>
+                                <input type="number" id="wizard-printer-electricity" value="0.12" step="0.01" min="0">
+                                <span class="form-hint">Your electricity rate</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Purchase Price ($)</label>
+                                <input type="number" id="wizard-printer-cost" value="300" step="1" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Expected Lifetime (hours)</label>
+                                <input type="number" id="wizard-printer-lifetime" value="5000" step="100" min="0">
+                                <span class="form-hint">For depreciation calculation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-actions">
+                        <button class="btn-secondary" id="wizard-skip-printer">Skip</button>
+                        <button class="btn-primary" id="wizard-add-printer">
+                            Add Printer & Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Add Material -->
+            <div class="wizard-step" id="wizard-step-3">
+                <div class="wizard-card">
+                    <div class="wizard-icon">🧵</div>
+                    <h2>Add Your First Material</h2>
+                    <p class="wizard-description">Set up your filament or resin pricing for accurate material cost calculations.</p>
+                    
+                    <div class="wizard-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Material Type</label>
+                                <select id="wizard-material-type">
+                                    <option value="PLA">PLA</option>
+                                    <option value="ABS">ABS</option>
+                                    <option value="PETG">PETG</option>
+                                    <option value="TPU">TPU</option>
+                                    <option value="ASA">ASA</option>
+                                    <option value="Resin">Resin</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Price per kg ($)</label>
+                                <input type="number" id="wizard-material-price" value="20" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row" id="wizard-custom-material-row" style="display: none;">
+                            <div class="form-group full">
+                                <label>Custom Material Name</label>
+                                <input type="text" id="wizard-material-custom" placeholder="Enter material name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-actions">
+                        <button class="btn-secondary" id="wizard-skip-material">Skip</button>
+                        <button class="btn-primary" id="wizard-finish">
+                            Finish Setup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Database Connection Status -->
     <div id="db-status" class="db-status disconnected" style="display: none;">
         <div class="db-status-indicator"></div>

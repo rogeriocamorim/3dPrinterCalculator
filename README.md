@@ -12,6 +12,13 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 ![Landing Page](screenshots/landing-page.png)
 *Welcome page explaining the app's features*
 
+### Onboarding Wizard
+| Step 1: Storage | Step 2: Printer | Step 3: Material |
+|-----------------|-----------------|------------------|
+| ![Step 1](screenshots/wizard-step1.png) | ![Step 2](screenshots/wizard-step2.png) | ![Step 3](screenshots/wizard-step3.png) |
+
+*Guided setup wizard for new users*
+
 ### Quote Calculator
 ![Quote Calculator](screenshots/quote-calculator.png)
 *Real-time quote calculation with expandable cost breakdown*
