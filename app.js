@@ -5,6 +5,7 @@
 
 // Application State
 let appData = {
+    currency: "USD",  // Global currency setting
     printers: [],
     filaments: [],
     laborTasks: {
@@ -12,6 +13,34 @@ let appData = {
         post: []
     }
 };
+
+// ============================================
+// Currency Definitions
+// ============================================
+
+const CURRENCIES = [
+    { code: "USD", symbol: "$", name: "US Dollar" },
+    { code: "CAD", symbol: "CA$", name: "Canadian Dollar" },
+    { code: "EUR", symbol: "€", name: "Euro" },
+    { code: "GBP", symbol: "£", name: "British Pound" },
+    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+    { code: "NZD", symbol: "NZ$", name: "New Zealand Dollar" },
+    { code: "BRL", symbol: "R$", name: "Brazilian Real" },
+    { code: "MXN", symbol: "MX$", name: "Mexican Peso" },
+    { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+    { code: "KRW", symbol: "₩", name: "South Korean Won" },
+    { code: "INR", symbol: "₹", name: "Indian Rupee" },
+    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+    { code: "ZAR", symbol: "R", name: "South African Rand" },
+    { code: "AED", symbol: "د.إ", name: "UAE Dirham" },
+    { code: "ILS", symbol: "₪", name: "Israeli Shekel" },
+    { code: "PLN", symbol: "zł", name: "Polish Zloty" },
+    { code: "SEK", symbol: "kr", name: "Swedish Krona" },
+    { code: "NOK", symbol: "kr", name: "Norwegian Krone" },
+    { code: "CLP", symbol: "CLP$", name: "Chilean Peso" },
+    { code: "COP", symbol: "COP$", name: "Colombian Peso" },
+    { code: "ARS", symbol: "AR$", name: "Argentine Peso" }
+];
 
 // Database (File) Connection State
 let fileHandle = null;
@@ -35,47 +64,73 @@ const STORE_NAME = 'fileHandles';
 // ============================================
 
 const PRINTER_PRESETS = [
-    // Creality
-    { name: "Ender 3 / Ender 3 Pro", brand: "Creality", power: 0.22, lifetime: 5000, cost: 200 },
-    { name: "Ender 3 V2 / V2 Neo", brand: "Creality", power: 0.27, lifetime: 5000, cost: 280 },
-    { name: "Ender 3 S1 / S1 Pro", brand: "Creality", power: 0.30, lifetime: 6000, cost: 400 },
+    // Bambu Lab (Updated 2025)
+    { name: "H2D", brand: "Bambu Lab", power: 0.45, lifetime: 10000, cost: 1999 },
+    { name: "X1 Carbon Combo", brand: "Bambu Lab", power: 0.35, lifetime: 8000, cost: 1449 },
+    { name: "X1E", brand: "Bambu Lab", power: 0.38, lifetime: 10000, cost: 1699 },
+    { name: "P1S Combo", brand: "Bambu Lab", power: 0.30, lifetime: 7000, cost: 949 },
+    { name: "P1P", brand: "Bambu Lab", power: 0.28, lifetime: 7000, cost: 599 },
+    { name: "A1", brand: "Bambu Lab", power: 0.22, lifetime: 5000, cost: 399 },
+    { name: "A1 Mini", brand: "Bambu Lab", power: 0.18, lifetime: 5000, cost: 299 },
+    // Creality (Updated 2025)
+    { name: "K2 Plus Combo", brand: "Creality", power: 0.45, lifetime: 8000, cost: 1299 },
+    { name: "K1 Max", brand: "Creality", power: 0.38, lifetime: 7000, cost: 699 },
+    { name: "K1C", brand: "Creality", power: 0.35, lifetime: 7000, cost: 499 },
+    { name: "K1", brand: "Creality", power: 0.35, lifetime: 7000, cost: 449 },
+    { name: "Ender 3 V3", brand: "Creality", power: 0.25, lifetime: 5000, cost: 199 },
+    { name: "Ender 3 V3 KE", brand: "Creality", power: 0.28, lifetime: 5000, cost: 249 },
+    { name: "Ender 3 V3 SE", brand: "Creality", power: 0.22, lifetime: 5000, cost: 179 },
+    { name: "Ender 3 Pro / V2", brand: "Creality", power: 0.22, lifetime: 5000, cost: 200 },
     { name: "CR-10 / CR-10S", brand: "Creality", power: 0.28, lifetime: 6000, cost: 450 },
-    { name: "K1 / K1 Max", brand: "Creality", power: 0.35, lifetime: 7000, cost: 600 },
-    // Prusa
-    { name: "Prusa MK3S+", brand: "Prusa", power: 0.12, lifetime: 8000, cost: 800 },
-    { name: "Prusa MK4", brand: "Prusa", power: 0.15, lifetime: 8000, cost: 1100 },
-    { name: "Prusa Mini+", brand: "Prusa", power: 0.08, lifetime: 6000, cost: 430 },
-    { name: "Prusa XL", brand: "Prusa", power: 0.25, lifetime: 10000, cost: 2000 },
-    // Bambu Lab
-    { name: "Bambu Lab X1 Carbon", brand: "Bambu Lab", power: 0.35, lifetime: 8000, cost: 1450 },
-    { name: "Bambu Lab X1E", brand: "Bambu Lab", power: 0.38, lifetime: 10000, cost: 1700 },
-    { name: "Bambu Lab P1S", brand: "Bambu Lab", power: 0.30, lifetime: 7000, cost: 700 },
-    { name: "Bambu Lab P1P", brand: "Bambu Lab", power: 0.28, lifetime: 7000, cost: 600 },
-    { name: "Bambu Lab A1", brand: "Bambu Lab", power: 0.22, lifetime: 5000, cost: 400 },
-    { name: "Bambu Lab A1 Mini", brand: "Bambu Lab", power: 0.18, lifetime: 5000, cost: 300 },
-    // Elegoo
-    { name: "Elegoo Neptune 3 Pro", brand: "Elegoo", power: 0.24, lifetime: 5000, cost: 260 },
-    { name: "Elegoo Neptune 4 Pro", brand: "Elegoo", power: 0.28, lifetime: 6000, cost: 320 },
-    // Anycubic
-    { name: "Anycubic Kobra 2", brand: "Anycubic", power: 0.25, lifetime: 5000, cost: 270 },
-    { name: "Anycubic Kobra 2 Max", brand: "Anycubic", power: 0.32, lifetime: 6000, cost: 550 },
-    { name: "Anycubic Vyper", brand: "Anycubic", power: 0.26, lifetime: 5000, cost: 300 },
+    // Prusa (Updated 2025)
+    { name: "Core One", brand: "Prusa", power: 0.30, lifetime: 8000, cost: 1199 },
+    { name: "MK4S Assembled", brand: "Prusa", power: 0.15, lifetime: 8000, cost: 1099 },
+    { name: "MK4S Kit", brand: "Prusa", power: 0.15, lifetime: 8000, cost: 799 },
+    { name: "MK3S+", brand: "Prusa", power: 0.12, lifetime: 8000, cost: 800 },
+    { name: "Mini+", brand: "Prusa", power: 0.08, lifetime: 6000, cost: 430 },
+    { name: "XL (Single)", brand: "Prusa", power: 0.35, lifetime: 10000, cost: 1999 },
+    { name: "XL (5 Toolheads)", brand: "Prusa", power: 0.50, lifetime: 10000, cost: 3499 },
+    // Qidi (New Brand 2025)
+    { name: "Q1 Pro", brand: "Qidi", power: 0.35, lifetime: 6000, cost: 469 },
+    { name: "X-Max 3", brand: "Qidi", power: 0.40, lifetime: 7000, cost: 799 },
+    { name: "X-Plus 3", brand: "Qidi", power: 0.38, lifetime: 7000, cost: 599 },
+    // Anycubic (Updated 2025)
+    { name: "Kobra 3 Combo", brand: "Anycubic", power: 0.35, lifetime: 6000, cost: 599 },
+    { name: "Kobra 2 Pro", brand: "Anycubic", power: 0.28, lifetime: 5000, cost: 299 },
+    { name: "Kobra 2", brand: "Anycubic", power: 0.25, lifetime: 5000, cost: 270 },
+    // Elegoo (Updated 2025)
+    { name: "Neptune 4 Max", brand: "Elegoo", power: 0.32, lifetime: 6000, cost: 469 },
+    { name: "Neptune 4 Pro", brand: "Elegoo", power: 0.28, lifetime: 6000, cost: 259 },
+    { name: "Neptune 4 Plus", brand: "Elegoo", power: 0.30, lifetime: 6000, cost: 349 },
+    { name: "Neptune 3 Pro", brand: "Elegoo", power: 0.24, lifetime: 5000, cost: 260 },
+    // Flashforge (Updated 2025)
+    { name: "Adventurer 5M Pro", brand: "Flashforge", power: 0.32, lifetime: 6000, cost: 499 },
+    { name: "Adventurer 5M", brand: "Flashforge", power: 0.28, lifetime: 6000, cost: 379 },
+    // Ankermake (New Brand)
+    { name: "M5C", brand: "Ankermake", power: 0.25, lifetime: 5000, cost: 299 },
+    { name: "M5", brand: "Ankermake", power: 0.28, lifetime: 5000, cost: 499 },
+    // Sovol (Updated 2025)
+    { name: "SV08", brand: "Sovol", power: 0.35, lifetime: 6000, cost: 499 },
+    { name: "SV07 Plus", brand: "Sovol", power: 0.32, lifetime: 5000, cost: 449 },
+    { name: "SV06", brand: "Sovol", power: 0.24, lifetime: 5000, cost: 260 },
     // Artillery
-    { name: "Artillery Sidewinder X2", brand: "Artillery", power: 0.30, lifetime: 5000, cost: 400 },
-    { name: "Artillery Genius Pro", brand: "Artillery", power: 0.24, lifetime: 5000, cost: 280 },
-    // Flashforge
-    { name: "Flashforge Adventurer 5M", brand: "Flashforge", power: 0.28, lifetime: 6000, cost: 450 },
-    // Sovol
-    { name: "Sovol SV06", brand: "Sovol", power: 0.24, lifetime: 5000, cost: 260 },
-    { name: "Sovol SV07", brand: "Sovol", power: 0.28, lifetime: 5000, cost: 350 },
+    { name: "Sidewinder X2", brand: "Artillery", power: 0.30, lifetime: 5000, cost: 400 },
+    { name: "Genius Pro", brand: "Artillery", power: 0.24, lifetime: 5000, cost: 280 },
     // Voron (DIY)
     { name: "Voron 2.4", brand: "Voron (DIY)", power: 0.35, lifetime: 10000, cost: 1500 },
     { name: "Voron Trident", brand: "Voron (DIY)", power: 0.32, lifetime: 10000, cost: 1200 },
-    // Resin Printers
-    { name: "Elegoo Mars 3 Pro", brand: "Elegoo (Resin)", power: 0.05, lifetime: 3000, cost: 250 },
-    { name: "Elegoo Saturn 3", brand: "Elegoo (Resin)", power: 0.06, lifetime: 3000, cost: 450 },
-    { name: "Anycubic Photon Mono", brand: "Anycubic (Resin)", power: 0.05, lifetime: 3000, cost: 200 },
-    { name: "Phrozen Sonic Mini", brand: "Phrozen (Resin)", power: 0.05, lifetime: 3000, cost: 300 },
+    // Ultimaker (Updated 2025)
+    { name: "S6 Secure", brand: "Ultimaker", power: 0.35, lifetime: 10000, cost: 4500 },
+    { name: "S8 Secure", brand: "Ultimaker", power: 0.40, lifetime: 10000, cost: 6000 },
+    { name: "S5 Pro Bundle", brand: "Ultimaker", power: 0.35, lifetime: 10000, cost: 7500 },
+    // Resin Printers (Updated 2025)
+    { name: "Saturn 4 Ultra", brand: "Elegoo (Resin)", power: 0.07, lifetime: 3000, cost: 549 },
+    { name: "Saturn 3", brand: "Elegoo (Resin)", power: 0.06, lifetime: 3000, cost: 450 },
+    { name: "Mars 5 Ultra", brand: "Elegoo (Resin)", power: 0.05, lifetime: 3000, cost: 289 },
+    { name: "Mars 3 Pro", brand: "Elegoo (Resin)", power: 0.05, lifetime: 3000, cost: 250 },
+    { name: "Photon Mono M7 Pro", brand: "Anycubic (Resin)", power: 0.06, lifetime: 3000, cost: 449 },
+    { name: "Photon Mono M5s", brand: "Anycubic (Resin)", power: 0.05, lifetime: 3000, cost: 299 },
+    { name: "Sonic Mini 8K", brand: "Phrozen (Resin)", power: 0.06, lifetime: 3000, cost: 350 },
     // Custom
     { name: "Custom / Other", brand: "Other", power: null, lifetime: null, cost: null }
 ];
@@ -85,46 +140,56 @@ const PRINTER_PRESETS = [
 // ============================================
 
 const ELECTRICITY_RATES = [
-    // North America
-    { region: "USA (Average)", rate: 0.12, currency: "$" },
-    { region: "USA - California", rate: 0.22, currency: "$" },
-    { region: "USA - Texas", rate: 0.11, currency: "$" },
-    { region: "USA - New York", rate: 0.19, currency: "$" },
-    { region: "USA - Florida", rate: 0.12, currency: "$" },
-    { region: "Canada (Average)", rate: 0.10, currency: "$" },
-    { region: "Canada - Ontario", rate: 0.13, currency: "$" },
-    { region: "Canada - Quebec", rate: 0.07, currency: "$" },
-    { region: "Canada - British Columbia", rate: 0.11, currency: "$" },
-    { region: "Canada - Alberta", rate: 0.12, currency: "$" },
-    { region: "Mexico", rate: 0.08, currency: "$" },
-    // Europe
-    { region: "UK", rate: 0.28, currency: "£" },
-    { region: "Germany", rate: 0.32, currency: "€" },
-    { region: "France", rate: 0.18, currency: "€" },
-    { region: "Spain", rate: 0.22, currency: "€" },
-    { region: "Italy", rate: 0.25, currency: "€" },
-    { region: "Netherlands", rate: 0.26, currency: "€" },
-    { region: "Belgium", rate: 0.28, currency: "€" },
-    { region: "Portugal", rate: 0.20, currency: "€" },
-    { region: "Poland", rate: 0.15, currency: "€" },
-    { region: "Sweden", rate: 0.18, currency: "€" },
-    { region: "Norway", rate: 0.10, currency: "€" },
-    // Asia Pacific
-    { region: "Australia", rate: 0.25, currency: "$" },
-    { region: "New Zealand", rate: 0.22, currency: "$" },
-    { region: "Japan", rate: 0.24, currency: "¥" },
-    { region: "South Korea", rate: 0.10, currency: "₩" },
-    { region: "Singapore", rate: 0.18, currency: "$" },
-    { region: "India", rate: 0.08, currency: "₹" },
-    // South America
-    { region: "Brazil", rate: 0.15, currency: "R$" },
-    { region: "Argentina", rate: 0.05, currency: "$" },
-    { region: "Chile", rate: 0.14, currency: "$" },
-    { region: "Colombia", rate: 0.12, currency: "$" },
-    // Other
-    { region: "South Africa", rate: 0.12, currency: "R" },
-    { region: "UAE", rate: 0.08, currency: "AED" },
-    { region: "Israel", rate: 0.15, currency: "₪" },
+    // North America (Updated December 2025)
+    { region: "USA (Average)", rate: 0.18, currency: "USD" },
+    { region: "USA - California", rate: 0.32, currency: "USD" },
+    { region: "USA - Texas", rate: 0.14, currency: "USD" },
+    { region: "USA - New York", rate: 0.22, currency: "USD" },
+    { region: "USA - Florida", rate: 0.15, currency: "USD" },
+    { region: "USA - Hawaii", rate: 0.42, currency: "USD" },
+    { region: "USA - Idaho", rate: 0.12, currency: "USD" },
+    { region: "USA - Washington", rate: 0.11, currency: "USD" },
+    { region: "Canada (Average)", rate: 0.12, currency: "CAD" },
+    { region: "Canada - Ontario", rate: 0.15, currency: "CAD" },
+    { region: "Canada - Quebec", rate: 0.08, currency: "CAD" },
+    { region: "Canada - British Columbia", rate: 0.13, currency: "CAD" },
+    { region: "Canada - Alberta", rate: 0.16, currency: "CAD" },
+    { region: "Mexico", rate: 0.09, currency: "MXN" },
+    // Europe (Updated December 2025)
+    { region: "UK", rate: 0.30, currency: "GBP" },
+    { region: "Germany", rate: 0.35, currency: "EUR" },
+    { region: "France", rate: 0.20, currency: "EUR" },
+    { region: "Spain", rate: 0.24, currency: "EUR" },
+    { region: "Italy", rate: 0.28, currency: "EUR" },
+    { region: "Netherlands", rate: 0.29, currency: "EUR" },
+    { region: "Belgium", rate: 0.30, currency: "EUR" },
+    { region: "Portugal", rate: 0.22, currency: "EUR" },
+    { region: "Poland", rate: 0.18, currency: "PLN" },
+    { region: "Sweden", rate: 0.20, currency: "SEK" },
+    { region: "Norway", rate: 0.12, currency: "NOK" },
+    { region: "Switzerland", rate: 0.22, currency: "EUR" },
+    { region: "Austria", rate: 0.26, currency: "EUR" },
+    { region: "Ireland", rate: 0.32, currency: "EUR" },
+    // Asia Pacific (Updated December 2025)
+    { region: "Australia", rate: 0.28, currency: "AUD" },
+    { region: "New Zealand", rate: 0.24, currency: "NZD" },
+    { region: "Japan", rate: 0.27, currency: "JPY" },
+    { region: "South Korea", rate: 0.12, currency: "KRW" },
+    { region: "Singapore", rate: 0.20, currency: "SGD" },
+    { region: "India", rate: 0.09, currency: "INR" },
+    { region: "China", rate: 0.08, currency: "USD" },
+    { region: "Hong Kong", rate: 0.15, currency: "USD" },
+    { region: "Taiwan", rate: 0.10, currency: "USD" },
+    // South America (Updated December 2025)
+    { region: "Brazil", rate: 0.16, currency: "BRL" },
+    { region: "Argentina", rate: 0.06, currency: "ARS" },
+    { region: "Chile", rate: 0.16, currency: "CLP" },
+    { region: "Colombia", rate: 0.14, currency: "COP" },
+    // Middle East & Africa
+    { region: "South Africa", rate: 0.14, currency: "ZAR" },
+    { region: "UAE", rate: 0.09, currency: "AED" },
+    { region: "Israel", rate: 0.17, currency: "ILS" },
+    { region: "Saudi Arabia", rate: 0.05, currency: "USD" },
     // Custom
     { region: "Custom / Other", rate: null, currency: null }
 ];
@@ -206,6 +271,11 @@ function initializeWizardHandlers() {
         wizardSkipStorage();
     });
     
+    // Step 2: Currency
+    document.getElementById('wizard-currency')?.addEventListener('change', (e) => {
+        handleWizardCurrencyChange(e.target.value);
+    });
+    
     // Step 2: Printer Preset
     document.getElementById('wizard-printer-preset')?.addEventListener('change', (e) => {
         handleWizardPrinterPreset(e.target.value);
@@ -249,6 +319,13 @@ function initializeWizardHandlers() {
 // ============================================
 
 function populateWizardPresets() {
+    // Populate currency dropdown
+    const currencyEl = document.getElementById('wizard-currency');
+    if (currencyEl) {
+        currencyEl.innerHTML = generateCurrencyOptions();
+        currencyEl.value = appData.currency || 'USD';
+    }
+    
     // Populate printer preset dropdown
     const printerPresetEl = document.getElementById('wizard-printer-preset');
     if (printerPresetEl) {
@@ -260,6 +337,17 @@ function populateWizardPresets() {
     if (regionPresetEl) {
         regionPresetEl.innerHTML = '<option value="">-- Select your region --</option>' + generateRegionPresetOptions();
     }
+    
+    // Update currency labels
+    updateCurrencyLabels();
+}
+
+function generateCurrencyOptions() {
+    let html = '';
+    CURRENCIES.forEach(currency => {
+        html += `<option value="${currency.code}">${currency.symbol} - ${currency.name} (${currency.code})</option>`;
+    });
+    return html;
 }
 
 function generatePrinterPresetOptions() {
@@ -288,8 +376,12 @@ function generatePrinterPresetOptions() {
 function generateRegionPresetOptions() {
     let html = '';
     ELECTRICITY_RATES.forEach(rate => {
-        const rateInfo = rate.rate ? ` (${rate.currency}${rate.rate}/kWh)` : '';
-        html += `<option value="${rate.region}">${rate.region}${rateInfo}</option>`;
+        if (rate.rate) {
+            const currency = CURRENCIES.find(c => c.code === rate.currency) || { symbol: '$' };
+            html += `<option value="${rate.region}">${rate.region} (${currency.symbol}${rate.rate}/kWh)</option>`;
+        } else {
+            html += `<option value="${rate.region}">${rate.region}</option>`;
+        }
     });
     return html;
 }
@@ -314,6 +406,37 @@ function handleWizardRegionPreset(regionName) {
     if (!rate || !rate.rate) return;
     
     document.getElementById('wizard-printer-electricity').value = rate.rate;
+    
+    // Auto-update currency based on region
+    if (rate.currency) {
+        const currencyEl = document.getElementById('wizard-currency');
+        if (currencyEl) {
+            currencyEl.value = rate.currency;
+            handleWizardCurrencyChange(rate.currency);
+        }
+    }
+}
+
+function handleWizardCurrencyChange(currencyCode) {
+    appData.currency = currencyCode;
+    updateCurrencyLabels();
+    saveToLocalStorage();
+    if (isConnected) autoSave();
+}
+
+function updateCurrencyLabels() {
+    const symbol = getCurrencySymbol();
+    
+    // Update all currency labels in the wizard and app
+    document.querySelectorAll('.currency-label').forEach(el => {
+        el.textContent = symbol;
+    });
+    
+    // Update the region dropdown display format
+    const regionPresetEl = document.getElementById('wizard-region-preset');
+    if (regionPresetEl) {
+        regionPresetEl.innerHTML = '<option value="">-- Select your region --</option>' + generateRegionPresetOptions();
+    }
 }
 
 function applyPrinterPreset(printerId, presetName) {
@@ -575,6 +698,35 @@ function initializeApp() {
     initializePrintersPage();
     initializeMaterialsPage();
     initializeDatabaseConnection();
+    initializeGlobalCurrencySelector();
+}
+
+function initializeGlobalCurrencySelector() {
+    const currencySelect = document.getElementById('global-currency-select');
+    if (!currencySelect) return;
+    
+    // Populate options
+    currencySelect.innerHTML = generateCurrencyOptions();
+    currencySelect.value = appData.currency || 'USD';
+}
+
+function handleGlobalCurrencyChange(currencyCode) {
+    appData.currency = currencyCode;
+    
+    // Update all currency labels
+    updateCurrencyLabels();
+    
+    // Re-render all components to update dynamic labels
+    renderPrinters();
+    renderFilaments();
+    renderLaborTasks();
+    calculateQuote();
+    
+    // Save
+    saveToLocalStorage();
+    if (isConnected) autoSave();
+    
+    showNotification(`Currency changed to ${currencyCode}`, 'success');
 }
 
 function checkBrowserCompatibility() {
@@ -1818,9 +1970,9 @@ function renderLaborTasks() {
                     onchange="updateLaborTask('${type}', ${index}, 'minutes', this.value)">
                 <span class="time-separator">m</span>
                 <span class="rate-prefix">@</span>
-                <input type="number" class="labor-rate-input" min="0" step="0.5" value="${task.rate || 20}" placeholder="$/h"
+                <input type="number" class="labor-rate-input" min="0" step="0.5" value="${task.rate || 20}" placeholder="${getCurrencySymbol()}/h"
                     onchange="updateLaborTask('${type}', ${index}, 'rate', this.value)">
-                <span class="time-separator">$/h</span>
+                <span class="time-separator">${getCurrencySymbol()}/h</span>
                 <button class="btn-delete-small" onclick="removeLaborTask('${type}', ${index})">×</button>
             </div>
         `).join('');
@@ -2383,7 +2535,7 @@ function renderPrinters() {
                     </div>
                     <div class="item-field">
                         <label>
-                            $/kWh
+                            ${getCurrencySymbol()}/kWh
                             <span class="help-icon small" data-tooltip="Your electricity rate. Check your power bill.">?</span>
                         </label>
                         <select class="region-preset-select" onchange="applyRegionPreset('${printer.id}', this.value)">
@@ -2406,7 +2558,7 @@ function renderPrinters() {
                 </div>
                 <div class="item-card-fields ${printer.includeDepreciation === false ? 'disabled' : ''}">
                     <div class="item-field">
-                        <label>Cost ($)</label>
+                        <label>Cost (${getCurrencySymbol()})</label>
                         <input type="number" value="${printer.cost || ''}" step="1" min="0" placeholder="3700"
                             onchange="updatePrinter('${printer.id}', 'cost', this.value)"
                             ${printer.includeDepreciation === false ? 'disabled' : ''}>
@@ -2450,7 +2602,7 @@ function renderMaintenanceTasks(printer) {
         <div class="maintenance-item">
             <input type="text" class="maintenance-name" value="${escapeHtml(task.name)}" placeholder="Task name"
                 onchange="updateMaintenanceTask('${printer.id}', ${index}, 'name', this.value)">
-            <input type="number" class="maintenance-cost" value="${task.cost || ''}" placeholder="$" min="0" step="0.01"
+            <input type="number" class="maintenance-cost" value="${task.cost || ''}" placeholder="${getCurrencySymbol()}" min="0" step="0.01"
                 onchange="updateMaintenanceTask('${printer.id}', ${index}, 'cost', this.value)">
             <span class="maintenance-separator">every</span>
             <input type="number" class="maintenance-interval" value="${task.intervalHours || ''}" placeholder="hrs" min="1" step="1"
@@ -2600,7 +2752,7 @@ function renderFilaments() {
             </div>
             <div class="item-card-fields">
                 <div class="item-field full-width">
-                <label>Price per kg ($)</label>
+                <label>Price per kg (${getCurrencySymbol()})</label>
                     <input type="number" value="${filament.pricePerKg}" step="0.01" min="0"
                         onchange="updateFilament('${filament.id}', 'pricePerKg', this.value)">
                 </div>
@@ -2614,7 +2766,13 @@ function renderFilaments() {
 // ============================================
 
 function formatCurrency(value) {
-    return '$' + value.toFixed(2);
+    const currency = CURRENCIES.find(c => c.code === appData.currency) || CURRENCIES[0];
+    return currency.symbol + value.toFixed(2);
+}
+
+function getCurrencySymbol() {
+    const currency = CURRENCIES.find(c => c.code === appData.currency) || CURRENCIES[0];
+    return currency.symbol;
 }
 
 function formatTime(hours) {
@@ -2678,6 +2836,16 @@ function updateIdCounters() {
 }
 
 function renderAll() {
+    // Update global currency selector
+    const currencySelect = document.getElementById('global-currency-select');
+    if (currencySelect) {
+        currencySelect.innerHTML = generateCurrencyOptions();
+        currencySelect.value = appData.currency || 'USD';
+    }
+    
+    // Update all currency labels
+    updateCurrencyLabels();
+    
     renderPrinters();
     renderFilaments();
     renderLaborTasks();
@@ -2689,13 +2857,14 @@ function renderAll() {
 
 function loadDefaultData() {
     appData = {
+        currency: 'USD',
         printers: [
             {
                 id: 'printer-1',
-                name: 'Ender 3 Pro',
-                kwPerHour: 0.22,
-                costPerKwh: 0.12,
-                cost: 200,
+                name: 'Ender 3 V3',
+                kwPerHour: 0.25,
+                costPerKwh: 0.18,
+                cost: 199,
                 expectedLifetimeHours: 5000,
                 includeDepreciation: true,
                 maintenanceTasks: []

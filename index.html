@@ -151,6 +151,23 @@
                     <p class="wizard-description">Set up your 3D printer to accurately calculate electricity and depreciation costs.</p>
                     
                     <div class="wizard-form">
+                        <!-- Currency Selector -->
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>
+                                    Your Currency
+                                    <span class="help-icon" data-tooltip="Select the currency you'll use for all prices. This will be used throughout the app.">?</span>
+                                </label>
+                                <select id="wizard-currency" class="preset-dropdown">
+                                    <!-- Options populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-divider">
+                            <span>Printer Setup</span>
+                        </div>
+
                         <!-- Printer Preset Selector -->
                         <div class="form-row">
                             <div class="form-group full">
@@ -185,20 +202,20 @@
                             </div>
                             <div class="form-group">
                                 <label>
-                                    Electricity ($/kWh)
+                                    Electricity (<span class="currency-label">$</span>/kWh)
                                     <span class="help-icon" data-tooltip="Your cost per kilowatt-hour. Find this on your electricity bill or select your region below.">?</span>
                                 </label>
                                 <select id="wizard-region-preset" class="preset-dropdown">
                                     <option value="">-- Select your region --</option>
                                 </select>
-                                <input type="number" id="wizard-printer-electricity" value="0.12" step="0.01" min="0" style="margin-top: 8px;">
+                                <input type="number" id="wizard-printer-electricity" value="0.18" step="0.01" min="0" style="margin-top: 8px;">
                                 <span class="form-hint">Check your power bill</span>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>
-                                    Purchase Price ($)
+                                    Purchase Price (<span class="currency-label">$</span>)
                                     <span class="help-icon" data-tooltip="The total cost you paid for the printer, including shipping and taxes.">?</span>
                                 </label>
                                 <input type="number" id="wizard-printer-cost" value="300" step="1" min="0">
@@ -640,12 +657,20 @@
                 <div class="page-header">
                     <h1>Printers</h1>
                     <p class="page-subtitle">Manage your 3D printers</p>
-                    <button class="btn-primary" id="add-printer-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        Add Printer
-                    </button>
+                    <div class="page-header-actions">
+                        <div class="currency-selector">
+                            <label>Currency:</label>
+                            <select id="global-currency-select" class="preset-dropdown" onchange="handleGlobalCurrencyChange(this.value)">
+                                <!-- Options populated by JavaScript -->
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="add-printer-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Add Printer
+                        </button>
+                    </div>
                 </div>
                 <div id="printers-list" class="items-grid"></div>
             </div>
