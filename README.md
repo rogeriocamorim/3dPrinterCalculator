@@ -8,6 +8,10 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 
 ## Screenshots
 
+### Landing Page
+![Landing Page](screenshots/landing-page.png)
+*Welcome page explaining the app's features*
+
 ### Quote Calculator
 ![Quote Calculator](screenshots/quote-calculator.png)
 *Real-time quote calculation with expandable cost breakdown*
@@ -22,7 +26,7 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 
 ### Database Connection
 ![Database](screenshots/database-modal.png)
-*Connect to a JSON file for persistent storage*
+*Connect to a local JSON file for persistent storage*
 
 ## Features
 
@@ -68,6 +72,16 @@ A modern, dark-themed web application for calculating accurate 3D printing job q
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Edge, Safari)
 - A local web server (for full functionality)
+
+### Browser Compatibility
+
+| Browser | Auto-Save | File Persistence | Notes |
+|---------|-----------|------------------|-------|
+| Chrome/Edge | ✅ Full | ✅ Remembers file | Best experience |
+| Safari | ✅ Full | ❌ Re-select file | Good support |
+| Firefox | ⚠️ Manual | ❌ Manual export | Use Export button to save |
+
+**Note:** Firefox doesn't support the File System Access API. The app works, but you'll need to manually export/import your settings file.
 
 ### Running the App
 

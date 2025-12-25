@@ -31,27 +31,51 @@ async function takeScreenshots() {
     await page.setViewport({ width: 1400, height: 900 });
 
     try {
-        // 1. Quote Calculator (main page)
-        console.log('📸 Taking screenshot: Quote Calculator...');
+        // 0. Landing Page
+        console.log('📸 Taking screenshot: Landing Page...');
         await page.goto(APP_URL, { waitUntil: 'networkidle0' });
         
-        // Close the database modal if it appears
+        // Clear any existing flags to show landing page
+        await page.evaluate(() => {
+            localStorage.removeItem('3dPrintQuoteHasUsedApp');
+            localStorage.removeItem('3dPrintQuoteConnected');
+        });
+        await page.reload({ waitUntil: 'networkidle0' });
+        await new Promise(r => setTimeout(r, 500));
+        
+        await page.screenshot({ 
+            path: path.join(SCREENSHOTS_DIR, 'landing-page.png'),
+            fullPage: false 
+        });
+        console.log('   ✓ landing-page.png');
+
+        // 1. Quote Calculator - Click "Get Started" to enter app
+        console.log('📸 Taking screenshot: Quote Calculator...');
+        
+        // Set flags to skip landing and modal
+        await page.evaluate(() => {
+            localStorage.setItem('3dPrintQuoteHasUsedApp', 'true');
+            localStorage.setItem('3dPrintQuoteConnected', 'true');
+        });
+        await page.reload({ waitUntil: 'networkidle0' });
+        await new Promise(r => setTimeout(r, 500));
+        
+        // Close any modal that appears
         await page.evaluate(() => {
             const modal = document.getElementById('db-modal');
             if (modal) modal.remove();
-            // Mark as connected to prevent modal
-            localStorage.setItem('3dPrintQuoteConnected', 'localStorage');
         });
-        await page.reload({ waitUntil: 'networkidle0' });
         
         // Fill in some sample data
         await page.evaluate(() => {
             // Set print time
-            document.getElementById('print-time-hours').value = 4;
-            document.getElementById('print-time-minutes').value = 30;
+            const hoursInput = document.getElementById('print-time-hours');
+            const minutesInput = document.getElementById('print-time-minutes');
+            if (hoursInput) hoursInput.value = 4;
+            if (minutesInput) minutesInput.value = 30;
             
             // Trigger calculation
-            document.getElementById('print-time-hours').dispatchEvent(new Event('input', { bubbles: true }));
+            if (hoursInput) hoursInput.dispatchEvent(new Event('input', { bubbles: true }));
             
             // Expand cost breakdown
             const toggle = document.getElementById('cost-breakdown-toggle');
@@ -69,8 +93,11 @@ async function takeScreenshots() {
 
         // 2. Printers page
         console.log('📸 Taking screenshot: Printers...');
-        await page.click('[data-page="printers"]');
-        await new Promise(r => setTimeout(r, 300));
+        await page.evaluate(() => {
+            const printersBtn = document.querySelector('[data-page="printers"]');
+            if (printersBtn) printersBtn.click();
+        });
+        await new Promise(r => setTimeout(r, 500));
         await page.screenshot({ 
             path: path.join(SCREENSHOTS_DIR, 'printers.png'),
             fullPage: false 
@@ -79,8 +106,11 @@ async function takeScreenshots() {
 
         // 3. Materials page
         console.log('📸 Taking screenshot: Materials...');
-        await page.click('[data-page="materials"]');
-        await new Promise(r => setTimeout(r, 300));
+        await page.evaluate(() => {
+            const materialsBtn = document.querySelector('[data-page="materials"]');
+            if (materialsBtn) materialsBtn.click();
+        });
+        await new Promise(r => setTimeout(r, 500));
         await page.screenshot({ 
             path: path.join(SCREENSHOTS_DIR, 'materials.png'),
             fullPage: false 
@@ -89,13 +119,17 @@ async function takeScreenshots() {
 
         // 4. Database modal
         console.log('📸 Taking screenshot: Database Modal...');
-        await page.click('[data-page="quote"]');
-        await new Promise(r => setTimeout(r, 200));
-        
-        // Clear connected flag and show modal
         await page.evaluate(() => {
-            localStorage.removeItem('3dPrintQuoteConnected');
-            // Create modal manually (updated to match current UI)
+            const quoteBtn = document.querySelector('[data-page="quote"]');
+            if (quoteBtn) quoteBtn.click();
+        });
+        await new Promise(r => setTimeout(r, 300));
+        
+        // Create modal manually
+        await page.evaluate(() => {
+            const existingModal = document.getElementById('db-modal');
+            if (existingModal) existingModal.remove();
+            
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.id = 'db-modal';
@@ -126,8 +160,9 @@ async function takeScreenshots() {
         await page.evaluate(() => {
             const modal = document.getElementById('db-modal');
             if (modal) modal.remove();
+            const tutorialBtn = document.querySelector('[data-page="tutorial"]');
+            if (tutorialBtn) tutorialBtn.click();
         });
-        await page.click('[data-page="tutorial"]');
         await new Promise(r => setTimeout(r, 500));
         // Scroll to top
         await page.evaluate(() => window.scrollTo(0, 0));
@@ -148,4 +183,3 @@ async function takeScreenshots() {
 }
 
 takeScreenshots();
-

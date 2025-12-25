@@ -10,14 +10,71 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Landing Page (shown first) -->
+    <div id="landing-page" class="landing-page">
+        <div class="landing-content">
+            <div class="landing-hero">
+                <div class="landing-logo">
+                    <div class="landing-logo-icon">3D</div>
+                    <h1>PrintQuote</h1>
+                </div>
+                <p class="landing-tagline">Calculate accurate 3D printing costs for your projects</p>
+            </div>
+            
+            <div class="landing-features">
+                <div class="landing-feature">
+                    <div class="feature-icon">💰</div>
+                    <h3>Accurate Pricing</h3>
+                    <p>Calculate material, electricity, machine depreciation, and labor costs</p>
+                </div>
+                <div class="landing-feature">
+                    <div class="feature-icon">🖨️</div>
+                    <h3>Multiple Printers</h3>
+                    <p>Manage different printers with their own power usage and costs</p>
+                </div>
+                <div class="landing-feature">
+                    <div class="feature-icon">📁</div>
+                    <h3>Import from Slicer</h3>
+                    <p>Upload .gcode.3mf files to auto-fill print time and materials</p>
+                </div>
+                <div class="landing-feature">
+                    <div class="feature-icon">💾</div>
+                    <h3>Save Locally</h3>
+                    <p>Your data stays on your computer in a simple JSON file</p>
+                </div>
+            </div>
+            
+            <div class="landing-cta">
+                <button class="btn-primary btn-large" id="get-started-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    Get Started
+                </button>
+                <p class="landing-note">Free & Open Source • No account required • Works offline</p>
+            </div>
+            
+            <div class="landing-footer">
+                <p>Developed by <strong>Rogerio Camorim</strong></p>
+                <div class="landing-links">
+                    <a href="https://github.com/rogeriocamorim/3dPrinterCalculator" target="_blank">GitHub</a>
+                    <span>•</span>
+                    <a href="https://github.com/sponsors/rogeriocamorim" target="_blank">Sponsor</a>
+                    <span>•</span>
+                    <a href="https://ko-fi.com/rogeriocamorim" target="_blank">Ko-fi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Database Connection Status -->
-    <div id="db-status" class="db-status disconnected">
+    <div id="db-status" class="db-status disconnected" style="display: none;">
         <div class="db-status-indicator"></div>
         <span class="db-status-text">No database connected</span>
         <button class="db-status-btn" id="connect-db-btn">Connect</button>
     </div>
 
-    <div class="app-container">
+    <div class="app-container" style="display: none;">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="logo">

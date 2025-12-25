@@ -93,6 +93,199 @@ body {
     color: var(--danger);
 }
 
+/* Landing Page */
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1520 50%, var(--bg-dark) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-page::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(0, 212, 170, 0.08) 0%, transparent 50%);
+    animation: landingGlow 15s ease-in-out infinite;
+}
+
+@keyframes landingGlow {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(10%, 10%) scale(1.1); }
+}
+
+.landing-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    padding: 40px;
+    text-align: center;
+}
+
+.landing-hero {
+    margin-bottom: 48px;
+}
+
+.landing-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.landing-logo-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent), #0088ff);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--bg-dark);
+    box-shadow: 0 8px 32px rgba(0, 212, 170, 0.3);
+}
+
+.landing-logo h1 {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.landing-tagline {
+    font-size: 20px;
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.landing-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.landing-feature {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.landing-feature:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(0, 212, 170, 0.15);
+}
+
+.feature-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.landing-feature h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.landing-feature p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.landing-cta {
+    margin-bottom: 48px;
+}
+
+.btn-large {
+    padding: 16px 40px;
+    font-size: 18px;
+    gap: 12px;
+}
+
+.btn-large svg {
+    width: 24px;
+    height: 24px;
+}
+
+.landing-note {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.landing-footer {
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.landing-footer p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.landing-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 13px;
+}
+
+.landing-links a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.landing-links a:hover {
+    color: var(--accent-hover);
+}
+
+.landing-links span {
+    color: var(--text-muted);
+}
+
+/* Firefox compatibility notice */
+.browser-notice {
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--warning);
+    display: none;
+}
+
+.browser-notice.visible {
+    display: block;
+}
+
+.browser-notice strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
 .db-status-btn {
     padding: 4px 12px;
     border-radius: 4px;
@@ -1522,6 +1715,36 @@ select option {
     font-size: 12px;
     color: var(--text-secondary);
     margin-bottom: 24px;
+}
+
+.modal-content .modal-warning {
+    background: rgba(255, 100, 100, 0.1);
+    border: 1px solid rgba(255, 100, 100, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #ff9999;
+    margin-bottom: 16px;
+}
+
+/* Limited mode (Firefox/Safari) */
+.db-status.limited {
+    background: linear-gradient(90deg, rgba(255, 170, 0, 0.1), rgba(255, 170, 0, 0.05));
+    border-bottom: 1px solid rgba(255, 170, 0, 0.2);
+}
+
+.db-status.limited .db-status-indicator {
+    background: var(--warning);
+    box-shadow: 0 0 10px var(--warning);
+}
+
+.db-status.limited .db-status-text {
+    color: var(--warning);
+}
+
+.db-status.limited .db-status-btn {
+    background: var(--warning);
+    color: var(--bg-dark);
 }
 
 .modal-buttons {

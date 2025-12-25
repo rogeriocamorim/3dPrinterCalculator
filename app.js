@@ -26,20 +26,97 @@ let current3mfFileName = null;
 let printerIdCounter = 1;
 let filamentIdCounter = 1;
 
+// IndexedDB for storing file handle (Chrome/Edge only)
+const DB_NAME = '3dPrintQuoteDB';
+const STORE_NAME = 'fileHandles';
+
 // ============================================
 // Initialization
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check browser compatibility first
+    checkBrowserCompatibility();
+    
+    // Initialize landing page
+    initializeLandingPage();
+    
+    // Check if user has already used the app (skip landing)
+    const hasUsedBefore = localStorage.getItem('3dPrintQuoteHasUsedApp');
+    if (hasUsedBefore) {
+        // Skip landing, go directly to app
+        hideLandingPage();
+        initializeApp();
+        await tryAutoConnect();
+    }
+});
+
+function initializeLandingPage() {
+    const getStartedBtn = document.getElementById('get-started-btn');
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', async () => {
+            localStorage.setItem('3dPrintQuoteHasUsedApp', 'true');
+            hideLandingPage();
+            initializeApp();
+            // Show the database modal after a brief delay
+            setTimeout(() => {
+                showCreateDatabaseModal();
+            }, 300);
+        });
+    }
+}
+
+function hideLandingPage() {
+    const landingPage = document.getElementById('landing-page');
+    const appContainer = document.querySelector('.app-container');
+    const dbStatus = document.getElementById('db-status');
+    
+    if (landingPage) {
+        landingPage.style.opacity = '0';
+        landingPage.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            landingPage.style.display = 'none';
+        }, 300);
+    }
+    
+    if (appContainer) {
+        appContainer.style.display = '';
+        appContainer.style.opacity = '0';
+        setTimeout(() => {
+            appContainer.style.opacity = '1';
+            appContainer.style.transition = 'opacity 0.3s ease';
+        }, 50);
+    }
+    
+    if (dbStatus) {
+        dbStatus.style.display = '';
+    }
+}
+
+function initializeApp() {
     initializeNavigation();
     initializeQuotePage();
     initializePrintersPage();
     initializeMaterialsPage();
     initializeDatabaseConnection();
+}
+
+function checkBrowserCompatibility() {
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    const hasFileSystemAccess = 'showOpenFilePicker' in window;
     
-    // Try to auto-connect on load
-    await tryAutoConnect();
-});
+    // Store for later use
+    window.browserSupport = {
+        isFirefox,
+        hasFileSystemAccess,
+        canPersistHandle: hasFileSystemAccess && !isFirefox
+    };
+    
+    // Show Firefox notice if needed
+    if (isFirefox) {
+        console.log('[Browser] Firefox detected - using fallback file handling');
+    }
+}
 
 // ============================================
 // Database Connection
@@ -49,8 +126,8 @@ function initializeDatabaseConnection() {
     const connectBtn = document.getElementById('connect-db-btn');
     const fileInput = document.getElementById('file-input');
     
-    connectBtn.addEventListener('click', handleConnectClick);
-    fileInput.addEventListener('change', handleFileInputChange);
+    if (connectBtn) connectBtn.addEventListener('click', handleConnectClick);
+    if (fileInput) fileInput.addEventListener('change', handleFileInputChange);
 }
 
 async function handleConnectClick() {
@@ -79,10 +156,38 @@ async function tryAutoConnect() {
         }
     }
     
-    // Always show the database connection modal on first load
-    // unless we're already connected (file is loaded)
+    // Try to restore file handle from IndexedDB (Chrome/Edge only)
+    if (window.browserSupport?.canPersistHandle) {
+        try {
+            const storedHandle = await getStoredFileHandle();
+            if (storedHandle) {
+                // Verify we still have permission
+                const permission = await storedHandle.queryPermission({ mode: 'readwrite' });
+                if (permission === 'granted') {
+                    fileHandle = storedHandle;
+                    await loadFromFile();
+                    setConnectionStatus(true);
+                    console.log('[Database] Auto-connected to stored file handle');
+                    return; // Successfully auto-connected
+                } else if (permission === 'prompt') {
+                    // Try to request permission
+                    const newPermission = await storedHandle.requestPermission({ mode: 'readwrite' });
+                    if (newPermission === 'granted') {
+                        fileHandle = storedHandle;
+                        await loadFromFile();
+                        setConnectionStatus(true);
+                        console.log('[Database] Re-authorized stored file handle');
+                        return;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('[Database] Could not restore file handle:', e.message);
+        }
+    }
+    
+    // If not auto-connected, show the modal
     if (!isConnected) {
-        // Show database connection modal immediately
         setTimeout(() => {
             showCreateDatabaseModal();
         }, 300);
@@ -91,6 +196,81 @@ async function tryAutoConnect() {
     // Load default data if empty
     if (appData.printers.length === 0 && appData.filaments.length === 0) {
         loadDefaultData();
+    }
+}
+
+// ============================================
+// IndexedDB for File Handle Persistence
+// ============================================
+
+function openIndexedDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+            }
+        };
+    });
+}
+
+async function storeFileHandle(handle) {
+    if (!window.browserSupport?.canPersistHandle) return;
+    
+    try {
+        const db = await openIndexedDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.put(handle, 'currentFile');
+        await new Promise((resolve, reject) => {
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+        console.log('[IndexedDB] File handle stored');
+    } catch (e) {
+        console.error('[IndexedDB] Error storing file handle:', e);
+    }
+}
+
+async function getStoredFileHandle() {
+    if (!window.browserSupport?.canPersistHandle) return null;
+    
+    try {
+        const db = await openIndexedDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get('currentFile');
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    } catch (e) {
+        console.error('[IndexedDB] Error getting file handle:', e);
+        return null;
+    }
+}
+
+async function clearStoredFileHandle() {
+    if (!window.browserSupport?.canPersistHandle) return;
+    
+    try {
+        const db = await openIndexedDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.delete('currentFile');
+        await new Promise((resolve, reject) => {
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+        console.log('[IndexedDB] File handle cleared');
+    } catch (e) {
+        console.error('[IndexedDB] Error clearing file handle:', e);
     }
 }
 
@@ -109,6 +289,9 @@ async function connectToDatabase() {
             await loadFromFile();
             setConnectionStatus(true);
             
+            // Store handle for next session (Chrome/Edge only)
+            await storeFileHandle(handle);
+            
         } catch (error) {
             if (error.name === 'AbortError') {
                 // User cancelled - show create new option
@@ -119,7 +302,7 @@ async function connectToDatabase() {
             }
         }
     } else {
-        // Fallback for browsers without File System Access API
+        // Fallback for Firefox and browsers without File System Access API
         document.getElementById('file-input').click();
     }
 }
@@ -131,6 +314,18 @@ function showCreateDatabaseModal() {
         existingModal.remove();
     }
     
+    // Check browser compatibility
+    const isFirefox = window.browserSupport?.isFirefox;
+    const hasFileSystemAccess = window.browserSupport?.hasFileSystemAccess;
+    
+    // Firefox-specific notice
+    let browserNotice = '';
+    if (isFirefox || !hasFileSystemAccess) {
+        browserNotice = `
+            <p class="modal-warning">⚠️ <strong>Limited Browser Support:</strong> Your browser doesn't support auto-save. You'll need to manually download and re-upload your file to save changes.</p>
+        `;
+    }
+    
     // Create a modal for database options
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -140,10 +335,11 @@ function showCreateDatabaseModal() {
             <h3>📁 Local Storage File</h3>
             <p class="modal-description">This app uses a <strong>local JSON file (.json)</strong> to save your printer and material settings on your computer. This is not a cloud database — your data stays private and local.</p>
             <p class="modal-benefit">💡 Once connected, you won't need to re-enter your printer specs and material prices every time!</p>
+            ${browserNotice}
             <p class="modal-note">⚠️ This is <strong>not</strong> a .3mf or .gcode.3mf file. Saved quotes (.gcode.3mf) can be loaded later using the "Load Quote" button.</p>
             <div class="modal-buttons">
-                <button class="btn-primary" id="create-new-db-btn">Create New File</button>
-                <button class="btn-secondary" id="open-existing-db-btn">Open Existing File</button>
+                <button class="btn-primary" id="create-new-db-btn">${hasFileSystemAccess ? 'Create New File' : 'Download Template'}</button>
+                <button class="btn-secondary" id="open-existing-db-btn">${hasFileSystemAccess ? 'Open Existing File' : 'Upload Existing File'}</button>
             </div>
         </div>
     `;
@@ -193,6 +389,9 @@ async function createNewDatabase() {
             setConnectionStatus(true);
             showNotification('Database created successfully!', 'success');
             
+            // Store handle for next session (Chrome/Edge only)
+            await storeFileHandle(fileHandle);
+            
         } catch (error) {
             if (error.name === 'AbortError') {
                 // User cancelled - show modal again
@@ -209,8 +408,11 @@ async function createNewDatabase() {
             }
         }
     } else {
-        // Fallback: download file
+        // Fallback for Firefox: download file and set as connected in read-only-ish mode
         downloadDatabaseFile();
+        // For Firefox, mark as connected but in limited mode
+        setConnectionStatus(true, 'limited');
+        closeModal();
     }
 }
 
@@ -228,7 +430,13 @@ function downloadDatabaseFile() {
 
 async function handleFileInputChange(event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+        // User cancelled - show modal again
+        if (!isConnected && !document.getElementById('db-modal')) {
+            showCreateDatabaseModal();
+        }
+        return;
+    }
     
     try {
         const text = await file.text();
@@ -238,12 +446,17 @@ async function handleFileInputChange(event) {
         renderAll();
         saveToLocalStorage();
         
-        // Note: Without File System Access API, we can't auto-save back
-        setConnectionStatus(false, 'read-only');
-        showNotification('Data loaded (read-only mode)', 'warning');
+        // For Firefox/Safari: connected but with manual save
+        setConnectionStatus(true, 'limited');
+        showNotification('Data loaded! Note: Use "Export" button to save changes.', 'info');
+        closeModal();
         
     } catch (error) {
         showNotification('Error loading file: ' + error.message, 'error');
+        // Show modal again on error
+        if (!isConnected && !document.getElementById('db-modal')) {
+            showCreateDatabaseModal();
+        }
     }
     
     event.target.value = '';
@@ -308,28 +521,40 @@ function autoSave() {
 
 async function disconnectDatabase() {
     fileHandle = null;
+    await clearStoredFileHandle();
     setConnectionStatus(false);
 }
 
 function setConnectionStatus(connected, mode = 'full') {
     isConnected = connected;
     const statusEl = document.getElementById('db-status');
+    if (!statusEl) return;
+    
     const textEl = statusEl.querySelector('.db-status-text');
     const btnEl = statusEl.querySelector('.db-status-btn');
     
-    statusEl.classList.remove('connected', 'disconnected');
+    statusEl.classList.remove('connected', 'disconnected', 'limited');
     
     if (connected) {
         statusEl.classList.add('connected');
-        textEl.textContent = `Connected: ${fileHandle?.name || 'database.json'}`;
-        btnEl.textContent = 'Connected';
+        if (mode === 'limited') {
+            statusEl.classList.add('limited');
+            textEl.textContent = 'Connected (manual save mode)';
+            btnEl.textContent = 'Export';
+            btnEl.onclick = downloadDatabaseFile;
+        } else {
+            textEl.textContent = `Connected: ${fileHandle?.name || 'database.json'}`;
+            btnEl.textContent = 'Connected';
+            btnEl.onclick = handleConnectClick;
+        }
         localStorage.setItem('3dPrintQuoteConnected', 'true');
         // Close modal if it's open
         closeModal();
     } else {
         statusEl.classList.add('disconnected');
-        textEl.textContent = mode === 'read-only' ? 'Read-only mode (no auto-save)' : 'No database connected';
+        textEl.textContent = 'No database connected';
         btnEl.textContent = 'Connect';
+        btnEl.onclick = handleConnectClick;
         // Clear the connected flag
         localStorage.removeItem('3dPrintQuoteConnected');
         // Show modal again if disconnected
