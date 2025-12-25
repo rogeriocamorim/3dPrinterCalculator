@@ -103,18 +103,24 @@ function initializeApp() {
 
 function checkBrowserCompatibility() {
     const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     const hasFileSystemAccess = 'showOpenFilePicker' in window;
     
     // Store for later use
     window.browserSupport = {
         isFirefox,
+        isSafari,
         hasFileSystemAccess,
-        canPersistHandle: hasFileSystemAccess && !isFirefox
+        canPersistHandle: hasFileSystemAccess && !isFirefox && !isSafari
     };
     
-    // Show Firefox notice if needed
-    if (isFirefox) {
-        console.log('[Browser] Firefox detected - using fallback file handling');
+    // Show browser notice on landing page if limited support
+    if (!hasFileSystemAccess || isFirefox) {
+        const notice = document.getElementById('browser-notice');
+        if (notice) {
+            notice.classList.add('visible');
+        }
+        console.log('[Browser] Limited browser detected - showing compatibility notice');
     }
 }
 

@@ -265,25 +265,51 @@ body {
     color: var(--text-muted);
 }
 
-/* Firefox compatibility notice */
+/* Browser compatibility notice */
 .browser-notice {
     background: rgba(255, 170, 0, 0.1);
     border: 1px solid rgba(255, 170, 0, 0.3);
-    border-radius: var(--radius-sm);
-    padding: 16px 20px;
-    margin-top: 24px;
-    font-size: 13px;
-    color: var(--warning);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 32px;
+    max-width: 500px;
+    text-align: left;
     display: none;
 }
 
 .browser-notice.visible {
-    display: block;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
 }
 
-.browser-notice strong {
+.browser-notice-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.browser-notice-content {
+    flex: 1;
+}
+
+.browser-notice-content strong {
     display: block;
-    margin-bottom: 4px;
+    font-size: 14px;
+    color: var(--warning);
+    margin-bottom: 8px;
+}
+
+.browser-notice-content p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.browser-notice-content .browser-notice-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 0;
 }
 
 .db-status-btn {
